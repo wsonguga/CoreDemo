@@ -1,0 +1,40 @@
+wirelessmesh.imn  # this file can be opened by CORE network emulator and contains a wireless sensor network of 5 nodes
+
+### In the subdirectory 'myservices':
+
+# TCP-based chat server and client program. The chat server will listen at
+serverport, and multiple chat clients may connect and chat
+
+./chatserver serverport
+./chatclient serverip serverport
+
+# UDP-based broadcast send and receive at port 50000
+./bcastsendrecv.py x.x.0.0
+./bcastsend.py x.x.0.0
+./bcastrecv.py
+
+### In the subdirectory 'socketexample':
+
+# UDP-based client and server program
+./udpServer.py   # convert the received string from client to upper
+case and send back to client
+./udpCmdServer.py #  # take the received string from client as a linux
+command to execute and send results back to client
+./udpClient.py
+
+# TCP-based client and server program
+./tcpServer.py   # convert the received string from client to upper
+case and send back to client
+./tcpCmdServer.py #  # take the received string from client as a linux
+command to execute and send results back to client
+./tcpClient.py
+
+### In the subdirectory 'simsensor':
+
+$ make  #compile
+$ ./sinwave data.txt #generate sinewave time series data in data.txt
+
+### In the subdirectory 'influxexample':
+
+It is an example to write a 10Hz sine wave to an InfluxDB
+./writedata.py localhost:8086 testdb admin admin
