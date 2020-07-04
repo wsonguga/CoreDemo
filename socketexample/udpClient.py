@@ -3,14 +3,14 @@
 import socket
 
 def Main():
-    host = '127.0.0.1'
+    host = '0.0.0.0' # allow to connect to any other network computer
     port = 5001
 
     server = ('127.0.0.1', 5000)
-	
+
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host,port))
-	
+
     message = raw_input("-> ")
     while message != 'q':
         s.sendto(message, server)
