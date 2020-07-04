@@ -3,7 +3,12 @@ import socket
 #from socket import *
 
 def Main():
-    host = '127.0.0.1'
+# we have not typed any ip in the ip field
+# instead we have inputted an empty string
+# this makes the server listen to requests
+# coming from other computers on the network
+#    host = '127.0.0.1'
+    host = ''
     port = 5000
 
 #    s = socket.socket() # no parameter will default to TCP socket, same as below
@@ -12,7 +17,7 @@ def Main():
     s.bind((host,port))
 
     print ("Server Started.")
-    
+
     s.listen(1)
     c, addr = s.accept()
     print "Connection from: ", str(addr)
@@ -21,13 +26,13 @@ def Main():
         if not data:
             break
         print "message from: ", str(addr)
-        print "from connect user: ", str(data) 
+        print "from connect user: ", str(data)
         data = str(data).upper()
         print "sending: " , str(data)
         c.send(data)
 
     c.close()
-    
+
 #main function
 if __name__ == "__main__":
     Main()
