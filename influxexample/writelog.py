@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 #if len(sys.argv) <= 4:
-#        print('Example: ./writedata.py 18.217.218.55:57129 testdb test sensorweb')
+#        print('Example: ./writedata.py 3.136.84.223:8086 testdb test sensorweb')
 #        print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana:http://18.217.218.55:3000/d/Yvx-ULCWz/csee4240?orgId=1&refresh=5s')
 #        sys.exit()
 

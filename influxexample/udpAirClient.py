@@ -15,7 +15,7 @@ def start(server):
 
    unit = "airpad"
 
-   url = "18.217.218.55:57129"
+   url = "3.136.84.22:8086"
    db = "testdb"
    user = "test"
    passw = "sensorweb"

@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 if len(sys.argv) <= 4:
-        print("Example: " + sys.argv[0] + " 3.136.84.223:57129 testdb test sensorweb")
+        print("Example: " + sys.argv[0] + " 3.136.84.223:8086 testdb test sensorweb")
         print("open browser with user/password:guest/sensorweb_guest to see waveform \
             at grafana: http://3.136.84.223:3000/d/Vv7164WMz/vital-signs?orgId=1&from=now-5m&to=now&refresh=5s")
         sys.exit()
