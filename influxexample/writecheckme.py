@@ -16,50 +16,55 @@ if len(sys.argv) <= 4:
 f_sampling = 10
 f_wave = 1
 
+ip = sys.argv[1]
+db = sys.argv[2]
+user = sys.argv[3]
+password = sys.argv[4]
+
 while True:
-    timestamp = datetime.datetime.now().timestamp()
+    now = datetime.datetime.now().timestamp()
     # IP:port, databaseName, user, password
-    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
     for i in range(f_sampling):
-        timestamp += 1 / f_sampling
+        timestamp = now + i / f_sampling
         value = math.sin(2 * math.pi * f_wave * timestamp)
         http_post += "\ncheckme,location=E7:CC:E2:D0:5C:C5 spo2=" 
         http_post += str(value) + " " + str(int(timestamp*10e8))
-        time.sleep(1 / f_sampling)
     http_post += "\'"
     print(http_post)
     subprocess.call(http_post, shell=True)
     
-    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
     for i in range(f_sampling):
-        timestamp += 1 / f_sampling
+        timestamp = now + i / f_sampling
         value = math.sin(2 * math.pi * f_wave * timestamp)
         http_post += "\ncheckme,location=E7:CC:E2:D0:5C:C5 hr="
         http_post += str(value) + " " + str(int(timestamp*10e8))
-        time.sleep(1 / f_sampling)
+        # time.sleep(1 / f_sampling)
     http_post += "\'"
     print(http_post)
     subprocess.call(http_post, shell=True)
        
-    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
     for i in range(f_sampling):
-        timestamp += 1 / f_sampling
+        timestamp = now + i / f_sampling
         value = math.sin(2 * math.pi * f_wave * timestamp)
         http_post += "\ncheckme,location=E7:CC:E2:D0:5C:C5 rr="
         http_post += str(value) + " " + str(int(timestamp*10e8))
-        time.sleep(1 / f_sampling)
     http_post += "\'"
     print(http_post)
     subprocess.call(http_post, shell=True)
           
-    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    http_post = "curl -i -XPOST \'http://%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
     for i in range(f_sampling):
-        timestamp += 1 / f_sampling
+        timestamp = now + i / f_sampling
         value = random.randint(35, 43)#math.sin(2 * math.pi * f_wave * timestamp)
         http_post += "\ncheckme,location=E7:CC:E2:D0:5C:C5 temperature="
         http_post += str(value) + " " + str(int(timestamp*10e8))
-        time.sleep(1 / f_sampling)
     http_post += "\'"
     print(http_post)
     subprocess.call(http_post, shell=True)
+
+    time.sleep(1)
+
 
