@@ -15,7 +15,7 @@ def start(server):
 
    unit = "airpad"
 
-   url = "3.136.84.22:8086"
+   url = "https://sensorweb.us:8086"
    db = "testdb"
    user = "test"
    passw = "sensorweb"
@@ -58,7 +58,7 @@ def start(server):
       data = data.rstrip(b'}').split(b',')
       data.pop(0)
       timeIni = int(float(data.pop(0))*1000) * 1000000
-      http_post  = "curl -s -POST \'http://"+ url+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
+      http_post  = "curl -s -POST \'"+ url+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
 #      http_post2 = "curl -s --insecure -POST \'http://"+rip+":8086/write?db="+db+"\' -u "+ruser+":"+rpassw+" --data-binary \' "
 
       for f in data:
