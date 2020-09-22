@@ -22,38 +22,59 @@ import time
 import math
 import datetime
 import sys
-from datetime import datetime 
+import urllib3
+from datetime import datetime
+urllib3.disable_warnings()
 
 
 def get_arguments():
-    parser = argparse.ArgumentParser(description='Migrate data from one influxDB database to another.')
+    parser = argparse.ArgumentParser(description='Migrate data from one influxDB database to another. \
+                                    For example: \
+                                    python influxDB_copy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35 \
+                                    , please open browser with user/password:guest/sensorweb_guest to see the result at grafana: https://sensorweb.us:3000')
     parser.add_argument('sURL',
                         type=str,
-                        help='the URL of source database.')
+                        help='the URL of source database. http://example.com')
     parser.add_argument('sDB',
                         type=str,
-                        help='name of the source database.')
+                        help='name of the source database. http://example.com')
+    parser.add_argument('sUser',
+                        type=str,
+                        help='username of the source database.')
+    parser.add_argument('sPasswd',
+                        type=str,
+                        help='password of the source database.')
     parser.add_argument('dURL',
                         type=str,
                         help='the URL of destination database.')
     parser.add_argument('dDB',
                         type=str,
                         help='name of the destination database.')
+    parser.add_argument('dUser',
+                        type=str,
+                        help='username of the destination database.')
+    parser.add_argument('dPasswd',
+                        type=str,
+                        help='password of the destination database.')
     parser.add_argument('startTime',
                         type=str,
-                        help='start time. format: Year-Mon-Day-Hour-Min-Sec')
+                        help='start time. format: Year-Mon-DayTHour:Min:Sec')
     parser.add_argument('endTime',
                         type=str,
-                        help='end time. format: Year-Mon-Day-Hour-Min-Sec')
+                        help='end time. format: Year-Mon-DayTHour:Min:Sec')
     
     return parser.parse_args()
 
 
 def datetime_convert(startDate, endDate):
-    year, mon, day, hour, min, sec = startDate.split('-')
+    leftT, rightT = startDate.split('T')
+    year, mon, day = leftT.split('-')
+    hour, min, sec = rightT.split(':')
     sDate = datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
 
-    year, mon, day, hour, min, sec = endDate.split('-')
+    leftT, rightT = endDate.split('T')
+    year, mon, day = leftT.split('-')
+    hour, min, sec = rightT.split(':')
     eDate = datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
 
     return sDate, eDate
@@ -129,17 +150,31 @@ def main():
 if __name__ == "__main__":
     args = get_arguments()
     # The ideal batch size for InfluxDB is 5,000-10,000 points.
-    write_batch_size = 5000
+    write_batch_size = 1000
+
+    if 'https' in args.sURL:
+        isSSL = True
+    else:
+        isSSL = False
+    args.sURL = args.sURL.split('//')[1]
+    
     sClient = InfluxDBClient(host=args.sURL, 
                             port=8086, 
-                            username='root', 
-                            password='root', 
-                            database=args.sDB)
+                            username=args.sUser, 
+                            password=args.sPasswd, 
+                            database=args.sDB,
+                            ssl=True)
     
+    if 'https' in args.dURL:
+        isSSL = True
+    else:
+        isSSL = False
+    args.dURL = args.dURL.split('//')[1]
+
     dClient = InfluxDBClient(host=args.dURL, 
                             port=8086, 
-                            username='root', 
-                            password='root', 
+                            username=args.dUser, 
+                            password=args.dPasswd, 
                             database=args.dDB,
                             ssl=True)
     main()
