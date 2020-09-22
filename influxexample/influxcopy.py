@@ -6,7 +6,7 @@
 
 # influxDB_copy.py sURL sDB sUser sPasswd dURL dDB dUser dPasswd startTime endTime
 # For example: 
-# 'python influxcopy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35'
+# python influxcopy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35
 
 # positional arguments:
 
@@ -158,6 +158,13 @@ def main():
 
 
 if __name__ == "__main__":
+    # arguments examination
+    if len(sys.argv) <= 10:
+        print("Example: " + sys.argv[0] + " https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35")
+        print('open browser with user/password:guest/sensorweb_guest to \
+            see waveform at grafana: https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002')
+        sys.exit()
+        
     args = get_arguments()
     # The ideal batch size for InfluxDB is 5,000-10,000 points.
     write_batch_size = 1000
