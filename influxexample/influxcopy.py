@@ -39,7 +39,8 @@ def get_arguments():
     parser = argparse.ArgumentParser(description='Migrate data from one influxDB database to another. \
                                     For example: \
                                     python influxDB_copy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35 \
-                                    , please open browser with user/password:guest/sensorweb_guest to see the result at grafana: https://sensorweb.us:3000')
+                                    , please open browser with user/password:guest/sensorweb_guest to see the result at grafana: \ 
+                                    https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002')
     parser.add_argument('sURL',
                         type=str,
                         help='the URL of source database. http://example.com')
