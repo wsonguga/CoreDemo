@@ -11,9 +11,9 @@ def read_next():
     epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
     data = "{'Z'," + str(epoch_time)
     for x in range(100): # 100 sample each read
-        data = data + "," + str(random.randrange(0, 65535))
+        data = data + "," + str(x) # str(random.randrange(0, 65535))
     data = data + "}"
-    sleep(0.1)
+    sleep(1) # sleep one second
     return data
 
 def Main():
