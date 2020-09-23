@@ -83,17 +83,10 @@ def data_migration(startTime, endTime, args):
 
     result = sClient.query('show series')
     points = list(result.get_points())
-
-<<<<<<< HEAD
     snames = []
-||||||| 8b99263
-=======
-    print("\Points:", points)
 
->>>>>>> 1e718875ba74507cf74d00f1b9e6694dae1f08d1
     for i in range(len(points)):
         read = points[i]['key']
-        print("\nRead:", read)
         if isAll == False:
             sname = args.measurement
         else:
@@ -104,10 +97,8 @@ def data_migration(startTime, endTime, args):
     
     for sname in snames:
         copyQuery = 'SELECT * FROM ' + sname + ' WHERE time > ' + start_str + ' and time < ' + end_str
-        print("\nQueries:", copyQuery)
         result = sClient.query(copyQuery)
         values = list(result.get_points())
-        # print("\nValues:", values)
 
         data = []
         for point in values:
