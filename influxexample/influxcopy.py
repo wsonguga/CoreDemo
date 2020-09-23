@@ -16,12 +16,16 @@ urllib3.disable_warnings()
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="""Migrate data from one influxDB database to another.""")
+
+    parser.add_argument('measurement',
+                        type=str,
+                        help='name of the measurement, type ALL for all.')
     parser.add_argument('sURL',
                         type=str,
                         help='the URL of source database. http://example.com')
     parser.add_argument('sDB',
                         type=str,
-                        help='name of the source database. http://example.com')
+                        help='name of the destination database. http://example.com')
     parser.add_argument('sUser',
                         type=str,
                         help='username of the source database.')
@@ -65,19 +69,31 @@ def datetime_convert(startDate, endDate):
 
 
 def data_migration(startTime, endTime, args):
-    
-    timestamp = startTime.timestamp()*1000
-    start_str = str(int((timestamp)*1000000))
+    # If a certain measurement is specified or not
+    if args.measurement != 'ALL':
+        isAll = False
+    else:
+        isAll = True
 
-    timestamp = endTime.timestamp()*1000
-    end_str=str(int((timestamp)*1000000))
+    start_timestamp = startTime.timestamp()*1000
+    start_str = str(int((start_timestamp)*1000000))
+
+    end_timestamp = endTime.timestamp()*1000
+    end_str=str(int((end_timestamp)*1000000))
 
     result = sClient.query('show series')
     points = list(result.get_points())
 
     for i in range(len(points)):
         read = points[i]['key']
-        sname = read.split(',')[0]
+        if isAll == False:
+            sname = args.measurement
+        else:
+            sname = read.split(',')[0]
+        
+        if sname != read.split(',')[0]:
+            continue
+        
         copyQuery = 'SELECT * FROM ' + sname + ' WHERE time > ' + start_str + ' and time < ' + end_str
         result = sClient.query(copyQuery)
         values = list(result.get_points())
@@ -106,6 +122,10 @@ def data_migration(startTime, endTime, args):
                     }
                 )
         dClient.write_points(data, database = args.dDB, time_precision = 'ms', batch_size = write_batch_size, protocol = 'json')
+
+    print("Click here to see the results in Grafana:\n\n" +
+            "https://sensorweb.us:3000/d/L3IBhqdGz/migration-example?orgId=1&from=" +
+            str(int(start_timestamp)) + "&to=" + str(int(end_timestamp)))
     return None
     
 
@@ -134,8 +154,8 @@ def main():
 if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
-        print("Usage: \n" + sys.argv[0] + " sIP sDB sUser sPass dIP dDB dUser dPass startTime endTime")
-        print("Example: \n" + sys.argv[0] + " https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35\n")
+        print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime endTime")
+        print("Example: \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35\n")
         print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
 https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002')
         sys.exit()
