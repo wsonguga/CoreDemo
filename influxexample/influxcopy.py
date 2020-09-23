@@ -101,7 +101,7 @@ def data_migration(startTime, endTime, args):
         print("\nQueries:", copyQuery)
         result = sClient.query(copyQuery)
         values = list(result.get_points())
-        print("\nValues:", values)
+        # print("\nValues:", values)
 
         data = []
         for point in values:
