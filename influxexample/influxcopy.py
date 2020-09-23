@@ -10,7 +10,7 @@ import math
 import datetime
 import sys
 import urllib3
-from datetime import datetime
+# from datetime import datetime
 urllib3.disable_warnings()
 
 
@@ -58,12 +58,12 @@ def datetime_convert(startDate, endDate):
     leftT, rightT = startDate.split('T')
     year, mon, day = leftT.split('-')
     hour, min, sec = rightT.split(':')
-    sDate = datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+    sDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
 
     leftT, rightT = endDate.split('T')
     year, mon, day = leftT.split('-')
     hour, min, sec = rightT.split(':')
-    eDate = datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+    eDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
 
     return sDate, eDate
 
@@ -105,9 +105,9 @@ def data_migration(startTime, endTime, args):
             for key, value in point.items():
                 if key == 'time':
                     if len(value) < 21:
-                        point_time = datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+                        point_time = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
                     else:
-                        point_time = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
+                        point_time = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
                 elif type(value) == type('a'):
                     tag[key] = value
                 else:
@@ -122,10 +122,6 @@ def data_migration(startTime, endTime, args):
                     }
                 )
         dClient.write_points(data, database = args.dDB, time_precision = 'ms', batch_size = write_batch_size, protocol = 'json')
-
-    print("Click here to see the results in Grafana:\n\n" +
-            "https://sensorweb.us:3000/d/L3IBhqdGz/migration-example?orgId=1&from=" +
-            str(int(start_timestamp)) + "&to=" + str(int(end_timestamp)))
     return None
     
 
@@ -146,7 +142,13 @@ def main():
         leftWindow = rightWindow
     
     client_write_end_time = time.perf_counter()
-    print("Migration completed! Data write time: {time}s".format(time = client_write_end_time - client_write_start_time))
+
+    sTime = sTime.timestamp() * 1000
+    eTime = eTime.timestamp() * 1000
+    print("\nMigration completed! Data write time: {time}s".format(time = client_write_end_time - client_write_start_time))
+    print("Click here to see the results in Grafana:\n" +
+            "https://sensorweb.us:3000/d/L3IBhqdGz/migration-example?orgId=1&from=" +
+            str(int(sTime)) + "&to=" + str(int(eTime)))
     return None
 
 
