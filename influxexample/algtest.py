@@ -220,8 +220,8 @@ def main():
     #  the blood pressure estimation algorithm
     if(debug): print("Calculating vital signs")
     bphigh,bplow = alg.calculateVitals(data, fs=100, cutoff=4,nlags=200,order=1)
-    saveResults(unit, 'xxx', 'bph' ,str(bphigh), nowtime)
-    saveResults(unit, 'xxx', 'bpl' ,str(bplow), nowtime)
+    saveResults(unit, 'bpressure', 'bph' ,str(bphigh), nowtime)
+    saveResults(unit, 'bpressure', 'bpl' ,str(bplow), nowtime)
     if(debug): print("bph:", bphigh, " bpl:", bplow)
     # end of adding
 
