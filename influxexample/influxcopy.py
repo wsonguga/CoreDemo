@@ -2,27 +2,6 @@
 # Migrate the data from one Influxdb database to another.
 # add argument '-h' for help
 
-# Usage:
-
-# influxcopy.py sURL sDB sUser sPasswd dURL dDB dUser dPasswd startTime endTime
-# For example: 
-# python influxcopy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35
-
-# positional arguments:
-
-#   - sURL        the URL of source database. e.g. "http://localhost"
-#   - sDB         name of the source database.
-#   - sUser       username of the source database.
-#   - sPasswd     password of the source database.
-#   - dURL        the URL of destination database.
-#   - dDB         name of the destination database.
-#   - dUser       username of the destination database.
-#   - dPasswd     password of the destination database.
-#   - startTime   start time. format: Year-Mon-Day-Hour-Min-Sec. e.g. "2020-06-04T15:40:00"
-#   - endTime     end time. format: Year-Mon-Day-Hour-Min-Sec. e.g. "2020-06-05T15:40:00"
-
-
-
 import argparse
 from influxdb import InfluxDBClient
 import numpy as np
@@ -36,12 +15,7 @@ urllib3.disable_warnings()
 
 
 def get_arguments():
-    parser = argparse.ArgumentParser(description="""Migrate data from one influxDB database to another. \
-                                    For example: \
-                                    python influxcopy.py https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35 \
-                                    , please open browser with user/password:guest/sensorweb_guest to see the result at grafana: \ 
-                                    https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002 
-                                    """)
+    parser = argparse.ArgumentParser(description="""Migrate data from one influxDB database to another.""")
     parser.add_argument('sURL',
                         type=str,
                         help='the URL of source database. http://example.com')
@@ -160,6 +134,7 @@ def main():
 if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
+        print("Usage: \n" + sys.argv[0] + " sIP sDB sUser sPass dIP dDB dUser dPass startTime endTime")
         print("Example: \n" + sys.argv[0] + " https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35\n")
         print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
 https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002')
