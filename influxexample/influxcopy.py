@@ -97,8 +97,11 @@ def data_migration(startTime, endTime, args):
     
     for sname in snames:
         copyQuery = 'SELECT * FROM ' + sname + ' WHERE time > ' + start_str + ' and time < ' + end_str
+        
         result = sClient.query(copyQuery)
         values = list(result.get_points())
+
+        print(copyQuery, "Data Length:" , len(values))
 
         data = []
         for point in values:
@@ -158,7 +161,7 @@ def main():
 if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
-        print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime endTime")
+        print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime(UTC) endTime(UTC)")
         print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35")
         print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35")
         # print("\nOpen browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
