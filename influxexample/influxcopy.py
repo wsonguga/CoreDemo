@@ -55,16 +55,18 @@ def get_arguments():
 
 
 def datetime_convert(startDate, endDate):
-    leftT, rightT = startDate.split('T')
-    year, mon, day = leftT.split('-')
-    hour, min, sec = rightT.split(':')
-    sDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+    # leftT, rightT = startDate.split('T')
+    # year, mon, day = leftT.split('-')
+    # hour, min, sec = rightT.split(':')
+    # sDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+    sDate = datetime.datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S")
+    # print(sDate, fsDate)
 
-    leftT, rightT = endDate.split('T')
-    year, mon, day = leftT.split('-')
-    hour, min, sec = rightT.split(':')
-    eDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
-
+    # leftT, rightT = endDate.split('T')
+    # year, mon, day = leftT.split('-')
+    # hour, min, sec = rightT.split(':')
+    # eDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+    eDate = datetime.datetime.strptime(endDate, "%Y-%m-%dT%H:%M:%S")
     return sDate, eDate
 
 
