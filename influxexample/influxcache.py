@@ -7,8 +7,7 @@ Also, if the local influxdb and grafana installation does not exist, trigger the
 '''logic: firstly read from local. If no data, read from remote and save the data to local. Lastly, return the requested data.
 Noted: if no influxdb or grafana installed in local. Prompt users to install.
 '''
-
-
+#!/usr/bin/env python3
 import sys, os
 from influxdb import InfluxDBClient
 import datetime, time
