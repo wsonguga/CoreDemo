@@ -163,7 +163,7 @@ def main():
 if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
-        print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime(UTC) endTime(UTC)")
+        print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime(local) endTime(local)")
         print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000Z 2020-08-07T19:22:35.000Z")
         print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000Z 2020-08-07T19:22:35.000Z")
         # print("\nOpen browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
