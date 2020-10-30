@@ -110,7 +110,7 @@ def main():
     httpStr = "https://"
 
  if(len(sys.argv) > 2):
-    current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ")
+    current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
 #    current = datetime.strptime("2018-06-29T08:15:27.243860Z", "%Y-%m-%dT%H:%M:%S.%fZ")
  else:
     current = datetime.utcnow()
@@ -119,7 +119,7 @@ def main():
  if(len(sys.argv) > 3):
      endSet = True
 #     end = datetime.strptime('2018-06-29T08:15:27.243860', '%Y-%m-%dT%H:%M:%S.%f')
-     end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ")
+     end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
  else:
      endSet = False
      end = datetime.utcnow() # never will be used, just give a value to avoid compile errors
