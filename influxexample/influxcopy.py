@@ -59,14 +59,14 @@ def datetime_convert(startDate, endDate):
     # year, mon, day = leftT.split('-')
     # hour, min, sec = rightT.split(':')
     # sDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
-    sDate = datetime.datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S")
+    sDate = datetime.datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S.%fZ")
     # print(sDate, fsDate)
 
     # leftT, rightT = endDate.split('T')
     # year, mon, day = leftT.split('-')
     # hour, min, sec = rightT.split(':')
     # eDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
-    eDate = datetime.datetime.strptime(endDate, "%Y-%m-%dT%H:%M:%S")
+    eDate = datetime.datetime.strptime(endDate, "%Y-%m-%dT%H:%M:%S.%fZ")
     return sDate, eDate
 
 
@@ -154,7 +154,7 @@ def main():
     eTime = eTime.timestamp() * 1000
     print("\nMigration completed! Data write time: {time}s".format(time = client_write_end_time - client_write_start_time))
     print("Click here to see the results in Grafana:\n" +
-            "https://sensorweb.us:3000/d/L3IBhqdGz/migration-example?orgId=1&from=" +
+            "https://sensorweb.us:3000/d/OSjxFKvGk/caretaker-vital-signs?orgId=1&from=" +
             str(int(sTime)) + "&to=" + str(int(eTime)))
     return None
 
@@ -164,8 +164,8 @@ if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
         print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime(UTC) endTime(UTC)")
-        print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35")
-        print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31 2020-08-07T19:22:35")
+        print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000Z 2020-08-07T19:22:35.000Z")
+        print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000Z 2020-08-07T19:22:35.000Z")
         # print("\nOpen browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
         #         https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002")
         sys.exit()
