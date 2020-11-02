@@ -274,6 +274,7 @@ def read_data(info=src_info.copy()):
 def main():
     # test if required programs are installed
     test_software_installed()
+    # the return data
     data = read_data(src_info.copy())
     return
 
