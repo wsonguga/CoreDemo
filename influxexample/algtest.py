@@ -25,6 +25,7 @@ import requests
 import subprocess
 from dateutil.parser import parse
 #from config import Config
+import webbrowser
 
 ip = "sensorweb.us"
 port = "8086"
@@ -50,10 +51,16 @@ def localTimeToUTC(time):
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
     utc_dt = local_dt.astimezone(pytz.utc)
+    print("epoch time with tzinfo:", str(utc_dt))
     utc_dt = utc_dt.replace(tzinfo=None)
     print("local time:",local_dt)
     print("UTC time:", utc_dt)
-    return utc_dt
+    # epoch = int( (utc_dt - datetime(1970,1,1)).total_seconds())
+    # epoch = int(utc_dt.timestamp()*1000)
+    epoch = int(local_dt.timestamp()*1000)
+
+    print("epoch time:", str(epoch))
+    return epoch # utc_dt
 
 def saveResults(unit, serie, field, value, time):
    time = time[0:19]
@@ -138,19 +145,41 @@ def main():
      endSet = False
      end = datetime.utcnow() # never will be used, just give a value to avoid compile errors
 
- endEpoch = int( (end - datetime(1970,1,1)).total_seconds())
+ endEpoch = end # int( (end - datetime(1970,1,1)).total_seconds())
 
 # Determining the starting point of the buffer using epoch time
- epoch2 = int( (current - datetime(1970,1,1)).total_seconds())
+ epoch2 = current # int( (current - datetime(1970,1,1)).total_seconds())
  startEpoch = epoch2
 
  #current = datetime.utcnow()
+#  print("len(sys.argv)", len(sys.argv))
+#  print("### Current time:", current, " ### \n")
+#  print("### End time:", end, " ### \n")
+#  print("Click here to see the results in Grafana:\n\n" +
+#               httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
+#                str(unit)+ "&orgId=1&from=" + str(startEpoch) + "000" + "&to=" + str(endEpoch) + "000")
+
  print("len(sys.argv)", len(sys.argv))
  print("### Current time:", current, " ### \n")
  print("### End time:", end, " ### \n")
- print("Click here to see the results in Grafana:\n\n" +
-              httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
-               str(unit)+ "&orgId=1&from=" + str(startEpoch) + "000" + "&to=" + str(endEpoch) + "000")
+ url = httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" + str(unit)
+
+ if(len(sys.argv) > 2):
+    url = url + "&from=" + str(startEpoch) #+ "000" 
+ else:
+    url = url + "&from=now-2m"
+
+ if(len(sys.argv) > 3):
+    url = url + "&to=" + str(endEpoch) #+ "000"
+ else:
+    url = url + "&to=now"
+ url = url + "&orgId=1&refresh=3s"
+
+
+ print("Click here to see the results in Grafana:\n\n" + url)
+#  input("Press any key to continue")
+ webbrowser.open(url, new=2)
+
 
  # Parameters for the Query
  epoch2 = epoch2 - 1
