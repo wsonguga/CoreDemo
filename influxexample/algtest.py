@@ -57,7 +57,12 @@ def localTimeToUTC(time):
     print("UTC time:", utc_dt)
     # epoch = int( (utc_dt - datetime(1970,1,1)).total_seconds())
     # epoch = int(utc_dt.timestamp()*1000)
-    epoch = int(local_dt.timestamp()*1000)
+    # epoch = int(local_dt.timestamp()*1000)
+
+    # remove the int
+    epoch = local_dt.timestamp()
+    # print(local_dt.timestamp())
+    # print(type(local_dt.timestamp()))
 
     print("epoch time:", str(epoch))
     return epoch # utc_dt
@@ -132,7 +137,7 @@ def main():
     current = localTimeToUTC(sys.argv[2])
 
  else:
-    current = datetime.utcnow()
+    current = datetime.utcnow().timestamp()
     bDependOnMovement = True
 
  if(len(sys.argv) > 3):
@@ -143,7 +148,7 @@ def main():
 
  else:
      endSet = False
-     end = datetime.utcnow() # never will be used, just give a value to avoid compile errors
+     end = datetime.utcnow().timestamp() # never will be used, just give a value to avoid compile errors
 
  endEpoch = end # int( (end - datetime(1970,1,1)).total_seconds())
 
@@ -200,7 +205,7 @@ def main():
  # Infinite Loop
  while True:
     # Cheking is the process need to sleep
-    current = int( (datetime.utcnow() - datetime(1970,1,1)).total_seconds())
+    current = (datetime.utcnow() - datetime(1970,1,1)).total_seconds()
     epoch2 = epoch2 + 1
     epoch1 = epoch1 + 1
     if (endSet == False and (current-epoch2) < 1):
@@ -216,8 +221,8 @@ def main():
         #print("The sleep monitoring result from node program is at https://sensorweb.us:3000/d/VmjKXrXWz/bed-dashboard?orgId=1&refresh=5s&var-mac=" + str(unit))
         quit()
     
-    stampIni = (datetime.utcfromtimestamp(epoch1).strftime('%Y-%m-%dT%H:%M:%S.000Z'))
-    stampEnd = (datetime.utcfromtimestamp(epoch2).strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    stampIni = (datetime.utcfromtimestamp(epoch1).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+    stampEnd = (datetime.utcfromtimestamp(epoch2).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
     #t0 = time.perf_counter()
     if(debug): print("stampIni time: " + stampIni)
     if(debug): print("stampEnd time: " + stampEnd)
