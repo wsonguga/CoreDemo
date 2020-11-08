@@ -20,5 +20,5 @@ import matplotlib.pyplot as plt
 
 def calculateVitals(signal, fs, cutoff,nlags,order):
     # add algorithm details
-    return 120,80
+    return random.randint(60, 90),random.randint(10, 20), random.randint(120, 150),random.randint(90, 120)
 

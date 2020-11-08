@@ -51,10 +51,10 @@ def localTimeToUTC(time):
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
     utc_dt = local_dt.astimezone(pytz.utc)
-    print("epoch time with tzinfo:", str(utc_dt))
-    utc_dt = utc_dt.replace(tzinfo=None)
-    print("local time:",local_dt)
-    print("UTC time:", utc_dt)
+    # print("epoch time with tzinfo:", str(utc_dt))
+    # utc_dt = utc_dt.replace(tzinfo=None)
+    # print("local time:",local_dt)
+    # print("UTC time:", utc_dt)
     # epoch = int( (utc_dt - datetime(1970,1,1)).total_seconds())
     # epoch = int(utc_dt.timestamp()*1000)
     # epoch = int(local_dt.timestamp()*1000)
@@ -64,7 +64,7 @@ def localTimeToUTC(time):
     # print(local_dt.timestamp())
     # print(type(local_dt.timestamp()))
 
-    print("epoch time:", str(epoch))
+    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
     return epoch # utc_dt
 
 def saveResults(unit, serie, field, value, time):
@@ -88,9 +88,9 @@ def main():
  if(len(sys.argv)<2):
     print("Usage: %s mac [start] [end] [ip] [https/http]" %(progname))
     print("Example: %s b8:27:eb:97:f5:ac   # start with current time and run in real-time as if in a node" %(progname))
-    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T05:27:00.000 # start with the specified time and run non-stop" %(progname))
-    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T05:27:00.000 2020-08-13T05:29:00.000 # start and end with the specified time" %(progname))
-    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T05:27:00.000 2020-08-13T05:29:00.000 sensorweb.us https # specify influxdb IP and http/https" %(progname))
+    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T02:03:00.200 # start with the specified time and run non-stop" %(progname))
+    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T02:03:00.200 2020-08-13T02:05:00.030 # start and end with the specified time" %(progname))
+    print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T02:03:00.200 2020-08-13T02:05:00.030 sensorweb.us https # specify influxdb IP and http/https" %(progname))
     quit()
 
 #  formatt = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -170,12 +170,12 @@ def main():
  url = httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" + str(unit)
 
  if(len(sys.argv) > 2):
-    url = url + "&from=" + str(startEpoch) #+ "000" 
+    url = url + "&from=" + str(int(startEpoch*1000)) #+ "000" 
  else:
     url = url + "&from=now-2m"
 
  if(len(sys.argv) > 3):
-    url = url + "&to=" + str(endEpoch) #+ "000"
+    url = url + "&to=" + str(int(endEpoch*1000)) #+ "000"
  else:
     url = url + "&to=now"
  url = url + "&orgId=1&refresh=3s"
@@ -205,19 +205,20 @@ def main():
  # Infinite Loop
  while True:
     # Cheking is the process need to sleep
-    current = (datetime.utcnow() - datetime(1970,1,1)).total_seconds()
+    current = datetime.utcnow().timestamp() #(datetime.utcnow() - datetime(1970,1,1)).total_seconds()
     epoch2 = epoch2 + 1
     epoch1 = epoch1 + 1
-    if (endSet == False and (current-epoch2) < 1):
+    if (endSet == False and (current-epoch2) < 1): 
         time.sleep(1)
         if(debug): print("*********")
 
 #    if(debug): print("*****************************************"+str(statusKey))
     if (endSet and epoch2 > endEpoch):
         if(debug): print("**** Ended as ", epoch2, " > ", end, " ***")
-        print("Click here to see the results in Grafana:\n\n" +
-              httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
-               str(unit)+ "&orgId=1&from=" + str(startEpoch) + "000" + "&to=" + str(endEpoch) + "000")
+        print("Click here to see the results in Grafana:\n\n" + url)
+        # print("Click here to see the results in Grafana:\n\n" +
+        #       httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
+        #        str(unit)+ "&orgId=1&from=" + str(int(startEpoch*1000)) + "&to=" + str(int(endEpoch*1000)) )
         #print("The sleep monitoring result from node program is at https://sensorweb.us:3000/d/VmjKXrXWz/bed-dashboard?orgId=1&refresh=5s&var-mac=" + str(unit))
         quit()
     
@@ -267,10 +268,12 @@ def main():
 
     #  the blood pressure estimation algorithm
     if(debug): print("Calculating vital signs")
-    bphigh,bplow = alg.calculateVitals(data, fs=100, cutoff=4,nlags=200,order=1)
+    hr,rr,bphigh,bplow = alg.calculateVitals(data, fs=100, cutoff=4,nlags=200,order=1)
+    saveResults(unit, 'hrate', 'hr' ,str(hr), nowtime)
+    saveResults(unit, 'rrate', 'rr' ,str(rr), nowtime)
     saveResults(unit, 'bpressure', 'bph' ,str(bphigh), nowtime)
     saveResults(unit, 'bpressure', 'bpl' ,str(bplow), nowtime)
-    if(debug): print("bph:", bphigh, " bpl:", bplow)
+    # if(debug): print("bph:", bphigh, " bpl:", bplow)
     # end of adding
 
 if __name__== '__main__':
