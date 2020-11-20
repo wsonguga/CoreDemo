@@ -6,65 +6,74 @@ import datetime
 import subprocess
 import sys
 import random
+import webbrowser
+import numpy as np
 
-if len(sys.argv) == 1:
-    ip = "https://sensorweb.us:8086"
-    db = "algtest"
-    user = "test"
-    password = "sensorweb"
-    mac = "aa:bb:cc:dd:ee:ff"
-elif len(sys.argv) >= 6:
+verbose = True
+
+# dataname - the dataname such as temperature, heartrate, etc
+# timestamp - the timestamp (in second) of the first element in the data array, such as datetime.datetime.now().timestamp()
+def writeInflux(tablename, dataname, data, timestamp, fs, unit):
+   http_post  = "curl -s -POST \'"+ ip+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
+   for value in data:
+      http_post += "\n" + tablename +",location=" + unit + " "
+      http_post += dataname + "=" + str(value) + " " + str(int(timestamp*10e8))
+      timestamp +=  1/fs
+   http_post += "\'  &"
+   if (verbose):   
+      print(http_post)
+   subprocess.call(http_post, shell=True)
+
+
+if len(sys.argv) >= 6:
     ip = sys.argv[1]
     db = sys.argv[2]
     user = sys.argv[3]
-    password = sys.argv[4]
-    mac = sys.argv[5]
+    passw = sys.argv[4]
+    unit = sys.argv[5]
 else:
-    print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 algtest test sensorweb aa:bb:cc:dd:ee:ff")
-    print("open browser with user/password:guest/sensorweb_guest to see waveform \
-        at grafana: https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&from=now-5m&to=now&refresh=5s")
+    print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff")
     sys.exit()
 
+url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&from=now-2m&to=now&var-unit=" + unit
+print("Click here to see the results in Grafana:\n\n" + url)
+#  input("Press any key to continue")
+webbrowser.open(url, new=2)
 
 while True:
     now = datetime.datetime.now().timestamp()
-    # https://ip:port, databaseName, user, password
-    http_post = "curl -i -XPOST \'%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
-    timestamp = str(int(now*10e8))
     
-    spo2 = random.randint(80, 100) #math.sin(2 * math.pi * f_wave * timestamp)
-    systolic = random.randint(100, 150)
-    diastolic = random.randint(70, 90)
-    heartrate = random.randint(60, 100)
-    respiratoryrate = random.randint(10, 30)
-    http_post += "\nvital,location=%s spo2=%d,systolic=%d,diastolic=%d,heartrate=%d,respiratoryrate=%d" %(mac, spo2, systolic, diastolic, heartrate, respiratoryrate)
-#    http_post += "\ncaretaker4,location=%s spo2=%s,systolic=%s,diastolic=%s,heartrate=%s,respiratoryrate=%s" %(mac, spo2, systolic, diastolic, heartrate, respiratoryrate)
-    http_post += " " + timestamp
+    fs = 1 # 1Hz
+    n = 60 
+    # spo2 = np.random.randint(80, 100, n)
+    systolic = np.random.randint(100, 150, n)
+    diastolic = np.random.randint(70, 90, n)
+    heartrate = np.random.randint(60, 100, n)
+    respiratoryrate = np.random.randint(10, 30, n)
 
-    # spo2 = random.randint(80, 100)
-    # http_post += "\nvital,location=%s spo2=" %(mac)
-    # http_post += str(spo2) + " " + timestamp
+    # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
+    writeInflux("predicted", "systolic", systolic, now, fs, unit)
+    writeInflux("predicted", "diastolic", diastolic, now, fs, unit)
+    writeInflux("predicted", "heartrate", heartrate, now, fs, unit)
+    writeInflux("predicted", "respiratoryrate", respiratoryrate, now, fs, unit)
 
-    # systolic = random.randint(100, 150)
-    # http_post += "\nvital,location=%s systolic=" %(mac)
-    # http_post += str(systolic) + " " + timestamp
+    # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
+    writeInflux("labeled", "systolic", systolic, now, fs, unit)
+    writeInflux("labeled", "diastolic", diastolic, now, fs, unit)
+    writeInflux("labeled", "heartrate", heartrate, now, fs, unit)
+    writeInflux("labeled", "respiratoryrate", respiratoryrate, now, fs, unit)
 
-    # diastolic = random.randint(70, 90)
-    # http_post += "\nvital,location=%s diastolic=" %(mac)
-    # http_post += str(diastolic) + " " + timestamp
+    time.sleep(60) # sleep 60 seconds
 
-    # heartrate = random.randint(60, 100)
-    # http_post += "\nvital,location=%s heartrate=" %(mac)
-    # http_post += str(heartrate) + " " + timestamp
 
-    # respiratoryrate = random.randint(10, 30)
-    # http_post += "\nvital,location=%s respiratoryrate=" %(mac)
-    # http_post += str(respiratoryrate) + " " + timestamp
+#     # https://ip:port, databaseName, user, password
+#     http_post = "curl -i -XPOST \'%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
+#     timestamp = str(int(now*10e8))
+#     http_post += "\nvital,location=%s spo2=%d,systolic=%d,diastolic=%d,heartrate=%d,respiratoryrate=%d" %(mac, spo2, systolic, diastolic, heartrate, respiratoryrate)
+#     http_post += " " + timestamp
+#     http_post += "\'"
+#     print(http_post)
+#     subprocess.call(http_post, shell=True)
 
-    http_post += "\'"
-    print(http_post)
-    subprocess.call(http_post, shell=True)
-
-    time.sleep(1)
 
 
