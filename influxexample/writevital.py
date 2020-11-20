@@ -65,22 +65,22 @@ while timestamp < end:
     fs = 1 # 1Hz
     n = 1 # write n reeadings at one time
     # spo2 = np.random.randint(80, 100, n)
-    systolic = np.random.randint(100, 150, n)
-    diastolic = np.random.randint(70, 90, n)
-    heartrate = np.random.randint(60, 100, n)
-    respiratoryrate = np.random.randint(10, 30, n)
+    S = np.random.randint(100, 150, n)
+    D = np.random.randint(70, 90, n)
+    H = np.random.randint(60, 100, n)
+    R = np.random.randint(10, 30, n)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    writeInflux("predicted", "systolic", systolic, timestamp, fs, unit)
-    writeInflux("predicted", "diastolic", diastolic, timestamp, fs, unit)
-    writeInflux("predicted", "heartrate", heartrate, timestamp, fs, unit)
-    writeInflux("predicted", "respiratoryrate", respiratoryrate, timestamp, fs, unit)
+    writeInflux("predicted", "S", S, timestamp, fs, unit)
+    writeInflux("predicted", "D", D, timestamp, fs, unit)
+    writeInflux("predicted", "H", H, timestamp, fs, unit)
+    writeInflux("predicted", "R", R, timestamp, fs, unit)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    writeInflux("labeled", "systolic", systolic, timestamp, fs, unit)
-    writeInflux("labeled", "diastolic", diastolic, timestamp, fs, unit)
-    writeInflux("labeled", "heartrate", heartrate, timestamp, fs, unit)
-    writeInflux("labeled", "respiratoryrate", respiratoryrate, timestamp, fs, unit)
+    writeInflux("labeled", "S", S, timestamp, fs, unit)
+    writeInflux("labeled", "D", D, timestamp, fs, unit)
+    writeInflux("labeled", "H", H, timestamp, fs, unit)
+    writeInflux("labeled", "R", R, timestamp, fs, unit)
 
     print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
