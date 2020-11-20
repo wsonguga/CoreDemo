@@ -41,7 +41,7 @@ print("Click here to see the results in Grafana:\n\n" + url)
 webbrowser.open(url, new=2)
 
 while True:
-    now = datetime.datetime.now().timestamp()
+    timestamp = datetime.datetime.now().timestamp() # here
     
     fs = 1 # 1Hz
     n = 60 
@@ -52,16 +52,16 @@ while True:
     respiratoryrate = np.random.randint(10, 30, n)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    writeInflux("predicted", "systolic", systolic, now, fs, unit)
-    writeInflux("predicted", "diastolic", diastolic, now, fs, unit)
-    writeInflux("predicted", "heartrate", heartrate, now, fs, unit)
-    writeInflux("predicted", "respiratoryrate", respiratoryrate, now, fs, unit)
+    writeInflux("predicted", "systolic", systolic, timestamp, fs, unit)
+    writeInflux("predicted", "diastolic", diastolic, timestamp, fs, unit)
+    writeInflux("predicted", "heartrate", heartrate, timestamp, fs, unit)
+    writeInflux("predicted", "respiratoryrate", respiratoryrate, timestamp, fs, unit)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    writeInflux("labeled", "systolic", systolic, now, fs, unit)
-    writeInflux("labeled", "diastolic", diastolic, now, fs, unit)
-    writeInflux("labeled", "heartrate", heartrate, now, fs, unit)
-    writeInflux("labeled", "respiratoryrate", respiratoryrate, now, fs, unit)
+    writeInflux("labeled", "systolic", systolic, timestamp, fs, unit)
+    writeInflux("labeled", "diastolic", diastolic, timestamp, fs, unit)
+    writeInflux("labeled", "heartrate", heartrate, timestamp, fs, unit)
+    writeInflux("labeled", "respiratoryrate", respiratoryrate, timestamp, fs, unit)
 
     time.sleep(60) # sleep 60 seconds
 
