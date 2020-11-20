@@ -63,7 +63,7 @@ webbrowser.open(url, new=2)
 timestamp = start
 while timestamp < end:
     fs = 1 # 1Hz
-    n = 1 # write n seeconds data at one time
+    n = 60 # write n seconds data at one time. for example, fs =1 and n = 60 means 60 seconds data and 1 per second to write at once 
     # spo2 = np.random.randint(80, 100, n)
     S = np.random.randint(100, 150, n)
     D = np.random.randint(70, 90, n)
@@ -84,7 +84,7 @@ while timestamp < end:
 
     print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
-    time.sleep(n) # sleep n seconds, which can be removed
+    # time.sleep(n) # sleep n seconds, which can be removed
     timestamp = timestamp + n # add n seconds
 
 
