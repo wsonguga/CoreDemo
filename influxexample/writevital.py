@@ -63,7 +63,7 @@ webbrowser.open(url, new=2)
 timestamp = start
 while timestamp < end:
     fs = 1 # 1Hz
-    n = 1 # write n reeadings at one time
+    n = 1 # write n seeconds data at one time
     # spo2 = np.random.randint(80, 100, n)
     S = np.random.randint(100, 150, n)
     D = np.random.randint(70, 90, n)
@@ -84,8 +84,8 @@ while timestamp < end:
 
     print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
-    time.sleep(n) # sleep 60 seconds
-    timestamp = timestamp + n # add 1000 ms = 1 s
+    time.sleep(n) # sleep n seconds, which can be removed
+    timestamp = timestamp + n # add n seconds
 
 
 #     # https://ip:port, databaseName, user, password
