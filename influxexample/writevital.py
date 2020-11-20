@@ -2,14 +2,27 @@
 
 import time
 import math
-import datetime
 import subprocess
 import sys
 import random
 import webbrowser
 import numpy as np
+from datetime import datetime
+from dateutil import tz
+import pytz
+
 
 verbose = True
+
+
+def localTimeToUTC(time):
+    local_tz = pytz.timezone("America/New_York")
+    localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
+    local_dt = local_tz.localize(localTime, is_dst=None)
+    utc_dt = local_dt.astimezone(pytz.utc)
+    epoch = local_dt.timestamp()
+    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    return epoch # utc_dt
 
 # dataname - the dataname such as temperature, heartrate, etc
 # timestamp - the timestamp (in second) of the first element in the data array, such as datetime.datetime.now().timestamp()
@@ -25,26 +38,32 @@ def writeInflux(tablename, dataname, data, timestamp, fs, unit):
    subprocess.call(http_post, shell=True)
 
 
-if len(sys.argv) >= 6:
+if len(sys.argv) >= 8:
     ip = sys.argv[1]
     db = sys.argv[2]
     user = sys.argv[3]
     passw = sys.argv[4]
     unit = sys.argv[5]
+    start = localTimeToUTC(sys.argv[6])
+    end = localTimeToUTC(sys.argv[7])
 else:
-    print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff")
+    print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff 2020-08-13T02:03:00.200 2020-08-13T02:08:00.030")
     sys.exit()
 
-url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&from=now-2m&to=now&var-unit=" + unit
+url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&var-unit=" + unit
+url = url + "&from=" + str(int(start*1000)) #+ "000" 
+url = url + "&to=" + str(int(end*1000)) #+ "000"
+
 print("Click here to see the results in Grafana:\n\n" + url)
 #  input("Press any key to continue")
 webbrowser.open(url, new=2)
 
-while True:
-    timestamp = datetime.datetime.now().timestamp() # here
-    
+# timestamp = datetime.now().timestamp() # here
+
+timestamp = start
+while timestamp < end:
     fs = 1 # 1Hz
-    n = 60 
+    n = 1 # write n reeadings at one time
     # spo2 = np.random.randint(80, 100, n)
     systolic = np.random.randint(100, 150, n)
     diastolic = np.random.randint(70, 90, n)
@@ -63,7 +82,10 @@ while True:
     writeInflux("labeled", "heartrate", heartrate, timestamp, fs, unit)
     writeInflux("labeled", "respiratoryrate", respiratoryrate, timestamp, fs, unit)
 
-    time.sleep(60) # sleep 60 seconds
+    print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
+
+    time.sleep(n) # sleep 60 seconds
+    timestamp = timestamp + n # add 1000 ms = 1 s
 
 
 #     # https://ip:port, databaseName, user, password
