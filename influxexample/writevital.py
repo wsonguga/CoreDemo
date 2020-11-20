@@ -48,6 +48,7 @@ if len(sys.argv) >= 8:
     end = localTimeToUTC(sys.argv[7])
 else:
     print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff 2020-08-13T02:03:00.200 2020-08-13T02:08:00.030")
+    print("Change aa:bb:cc:dd:ee:ff to your fi:rs:tl:as:tn:am to avoid overwrite each other")
     sys.exit()
 
 url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&var-unit=" + unit
@@ -71,16 +72,16 @@ while timestamp < end:
     R = np.random.randint(10, 30, n)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    writeInflux("predicted", "S", S, timestamp, fs, unit)
-    writeInflux("predicted", "D", D, timestamp, fs, unit)
-    writeInflux("predicted", "H", H, timestamp, fs, unit)
-    writeInflux("predicted", "R", R, timestamp, fs, unit)
-
-    # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
     writeInflux("labeled", "S", S, timestamp, fs, unit)
     writeInflux("labeled", "D", D, timestamp, fs, unit)
     writeInflux("labeled", "H", H, timestamp, fs, unit)
     writeInflux("labeled", "R", R, timestamp, fs, unit)
+
+    # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
+    writeInflux("predicted", "S", S+random.randint(1,3), timestamp, fs, unit)
+    writeInflux("predicted", "D", D+random.randint(1,3), timestamp, fs, unit)
+    writeInflux("predicted", "H", H+random.randint(1,3), timestamp, fs, unit)
+    writeInflux("predicted", "R", R+random.randint(1,3), timestamp, fs, unit)
 
     print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
