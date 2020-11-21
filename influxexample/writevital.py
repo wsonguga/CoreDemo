@@ -12,7 +12,7 @@ from dateutil import tz
 import pytz
 
 
-verbose = True
+verbose = False
 
 
 def localTimeToUTC(time):
@@ -21,7 +21,7 @@ def localTimeToUTC(time):
     local_dt = local_tz.localize(localTime, is_dst=None)
     utc_dt = local_dt.astimezone(pytz.utc)
     epoch = local_dt.timestamp()
-    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    # print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
     return epoch # utc_dt
 
 # dataname - the dataname such as temperature, heartrate, etc
@@ -55,7 +55,7 @@ url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&var-
 url = url + "&from=" + str(int(start*1000)) #+ "000" 
 url = url + "&to=" + str(int(end*1000)) #+ "000"
 
-print("Click here to see the results in Grafana (user/password:guest/sensorweb_guest):\n\n" + url)
+print("Click here to see the results in Grafana (user/password:guest/sensorweb_guest):\n" + url)
 #  input("Press any key to continue")
 webbrowser.open(url, new=2)
 
@@ -83,7 +83,7 @@ while timestamp < end:
     writeInflux("predicted", "H", H+random.randint(1,3), timestamp, fs, unit)
     writeInflux("predicted", "R", R+random.randint(1,3), timestamp, fs, unit)
 
-    print(timestamp, (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')))
+    print("start:", (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')), "end:", (datetime.fromtimestamp(timestamp+n).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
     # time.sleep(n) # sleep n seconds, which can be removed
     timestamp = timestamp + n # add n seconds
