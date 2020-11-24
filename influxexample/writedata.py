@@ -7,7 +7,7 @@ import sys
 
 if len(sys.argv) <= 4:
         print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb")
-        print('open browser with user/password:guest/sensorweb_guest to \
+        print('open browser with user/password:viewer/guest to \
             see waveform at grafana: https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&refresh=5s')
         sys.exit()
 
