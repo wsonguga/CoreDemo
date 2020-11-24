@@ -65,7 +65,6 @@ timestamp = start
 while timestamp < end:
     fs = 1 # 1Hz
     n = 60 # write n seconds data at one time. for example, fs =1 and n = 60 means 60 seconds data and 1 per second to write at once 
-    # spo2 = np.random.randint(80, 100, n)
     S = np.random.randint(100, 150, n)
     D = np.random.randint(70, 90, n)
     H = np.random.randint(60, 100, n)
@@ -87,16 +86,6 @@ while timestamp < end:
 
     # time.sleep(n) # sleep n seconds, which can be removed
     timestamp = timestamp + n # add n seconds
-
-
-#     # https://ip:port, databaseName, user, password
-#     http_post = "curl -i -XPOST \'%s/write?db=%s\' -u %s:%s --data-binary \'" % (ip, db, user, password)
-#     timestamp = str(int(now*10e8))
-#     http_post += "\nvital,location=%s spo2=%d,systolic=%d,diastolic=%d,heartrate=%d,respiratoryrate=%d" %(mac, spo2, systolic, diastolic, heartrate, respiratoryrate)
-#     http_post += " " + timestamp
-#     http_post += "\'"
-#     print(http_post)
-#     subprocess.call(http_post, shell=True)
 
 
 
