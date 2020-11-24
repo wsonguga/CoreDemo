@@ -55,7 +55,7 @@ url = "https://sensorweb.us:3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&var-
 url = url + "&from=" + str(int(start*1000)) #+ "000" 
 url = url + "&to=" + str(int(end*1000)) #+ "000"
 
-print("Click here to see the results in Grafana (user/password:guest/sensorweb_guest):\n" + url)
+print("Click here to see the results in Grafana (user/password:viewer/guest):\n" + url)
 #  input("Press any key to continue")
 webbrowser.open(url, new=2)
 
