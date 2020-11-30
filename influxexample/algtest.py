@@ -46,11 +46,11 @@ def utcToLocalTime(time2, formatt, from_zone, to_zone):
     timeDetected = central.strftime("%m-%d %I:%M %p")
     return timeDetected
 
-def localTimeToUTC(time):
+def localTimeToEpoch(time):
     local_tz = pytz.timezone("America/New_York")
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
-    utc_dt = local_dt.astimezone(pytz.utc)
+    # utc_dt = local_dt.astimezone(pytz.utc)
     # print("epoch time with tzinfo:", str(utc_dt))
     # utc_dt = utc_dt.replace(tzinfo=None)
     # print("local time:",local_dt)
@@ -71,7 +71,7 @@ def saveResults(unit, serie, field, value, time):
    time = time[0:19]
 
    utc_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-   epoch_time = int((utc_time - datetime(1970, 1, 1)).total_seconds())
+   epoch_time = utc_time.timestamp() #int((utc_time - datetime(1970, 1, 1)).total_seconds())
 
    http_post2 = "curl -s -POST --insecure \'https://"+rip+":"+rport+"/write?db="+rdb+"\' -u "+ruser+":"+rpassw+" --data-binary \' "
    http_post2 += "\n"+serie+",location="+unit+" "+field+"="+value+" "+str(epoch_time)+"000000000"
@@ -134,7 +134,7 @@ def main():
  if(len(sys.argv) > 2):
     # current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
 #    current = datetime.strptime("2018-06-29T08:15:27.243860Z", "%Y-%m-%dT%H:%M:%S.%fZ")
-    current = localTimeToUTC(sys.argv[2])
+    current = localTimeToEpoch(sys.argv[2])
 
  else:
     current = datetime.utcnow().timestamp()
@@ -144,7 +144,7 @@ def main():
      endSet = True
 #     end = datetime.strptime('2018-06-29T08:15:27.243860', '%Y-%m-%dT%H:%M:%S.%f')
     #  end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
-     end = localTimeToUTC(sys.argv[3])
+     end = localTimeToEpoch(sys.argv[3])
 
  else:
      endSet = False

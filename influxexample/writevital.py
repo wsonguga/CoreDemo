@@ -15,14 +15,14 @@ import pytz
 verbose = False
 
 
-def localTimeToUTC(time):
+def localTimeToEpoch(time):
     local_tz = pytz.timezone("America/New_York")
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
-    utc_dt = local_dt.astimezone(pytz.utc)
+    # utc_dt = local_dt.astimezone(pytz.utc)
     epoch = local_dt.timestamp()
-    # print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
-    return epoch # utc_dt
+    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    return epoch 
 
 # dataname - the dataname such as temperature, heartrate, etc
 # timestamp - the timestamp (in second) of the first element in the data array, such as datetime.datetime.now().timestamp()
@@ -44,8 +44,8 @@ if len(sys.argv) >= 8:
     user = sys.argv[3]
     passw = sys.argv[4]
     unit = sys.argv[5]
-    start = localTimeToUTC(sys.argv[6])
-    end = localTimeToUTC(sys.argv[7])
+    start = localTimeToEpoch(sys.argv[6])
+    end = localTimeToEpoch(sys.argv[7])
 else:
     print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff 2020-08-13T02:03:00.200 2020-08-13T02:08:00.030")
     print("Change aa:bb:cc:dd:ee:ff to your fi:rs:tl:as:tn:am to avoid overwrite each other")
