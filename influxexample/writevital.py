@@ -15,8 +15,8 @@ import pytz
 verbose = False
 
 
-def localTimeToEpoch(time):
-    local_tz = pytz.timezone("America/New_York")
+def localTimeToEpoch(time, zone):
+    local_tz = pytz.timezone(zone)
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
     # utc_dt = local_dt.astimezone(pytz.utc)
@@ -44,8 +44,8 @@ if len(sys.argv) >= 8:
     user = sys.argv[3]
     passw = sys.argv[4]
     unit = sys.argv[5]
-    start = localTimeToEpoch(sys.argv[6])
-    end = localTimeToEpoch(sys.argv[7])
+    start = localTimeToEpoch(sys.argv[6], "America/New_York")
+    end = localTimeToEpoch(sys.argv[7], "America/New_York")
 else:
     print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb aa:bb:cc:dd:ee:ff 2020-08-13T02:03:00.200 2020-08-13T02:08:00.030")
     print("Change aa:bb:cc:dd:ee:ff to your fi:rs:tl:as:tn:am to avoid overwrite each other")
