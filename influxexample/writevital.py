@@ -52,16 +52,16 @@ while timestamp < end:
     R = np.random.randint(10, 30, n)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    write_influx(dest, unit, "labeled", "S", S, timestamp, fs)
-    write_influx(dest, unit, "labeled", "D", D, timestamp, fs)
-    write_influx(dest, unit, "labeled", "H", H, timestamp, fs)
-    write_influx(dest, unit, "labeled", "R", R, timestamp, fs)
+    write_influx(dest, unit, 'labeled', 'S', S, timestamp, fs)
+    write_influx(dest, unit, 'labeled', 'D', D, timestamp, fs)
+    write_influx(dest, unit, 'labeled', 'H', H, timestamp, fs)
+    write_influx(dest, unit, 'labeled', 'R', R, timestamp, fs)
 
     # user your first name as the unit name or location tag if you are in a class and want to avoid overwriting with each other
-    write_influx(dest, unit, "predicted", "S", S+random.randint(1,3), timestamp, fs)
-    write_influx(dest, unit, "predicted", "D", D+random.randint(1,3), timestamp, fs)
-    write_influx(dest, unit, "predicted", "H", H+random.randint(1,3), timestamp, fs)
-    write_influx(dest, unit, "predicted", "R", R+random.randint(1,3), timestamp, fs)
+    write_influx(dest, unit, 'predicted', 'S', S+random.randint(1,3), timestamp, fs)
+    write_influx(dest, unit, 'predicted', 'D', D+random.randint(1,3), timestamp, fs)
+    write_influx(dest, unit, 'predicted', 'H', H+random.randint(1,3), timestamp, fs)
+    write_influx(dest, unit, 'predicted', 'R', R+random.randint(1,3), timestamp, fs)
 
     print("start:", (datetime.fromtimestamp(timestamp).strftime('%Y-%m-%dT%H:%M:%S.%f')), "end:", (datetime.fromtimestamp(timestamp+n).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
