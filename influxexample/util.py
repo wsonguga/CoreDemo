@@ -51,7 +51,7 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
 # unit - the unit location name tag
 def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timestamp):
     client = InfluxDBClient(influx['ip'].split('//')[1], '8086', influx['user'], influx['passw'], influx['db'],  ssl=True)
-    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE "location" = "'+unit+'" AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
+    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE "location" = \''+unit+'\' AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
     # query = 'SELECT last("H") FROM "labelled" WHERE ("location" = \''+unit+'\')'
 
     print(query)
@@ -59,7 +59,7 @@ def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timest
     print(result)
 
     points = list(result.get_points())
-    values =  map(operator.itemgetter('last'), points)
+    values =  map(operator.itemgetter(data_name), points)
     times  =  map(operator.itemgetter('time'),  points)
     data = np.array(list(values))
     print(data, times)
