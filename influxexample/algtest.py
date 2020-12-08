@@ -60,7 +60,7 @@ def localTimeToEpoch(time, zone):
 # unitt - the unit location name tag
 def writeInflux(tablename, dataname, data, timestamp, fs, unit):
     print("epoch time:", timestamp) 
-    http_post  = "curl -s -POST \'https://"+ ip+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
+    http_post  = "curl -s -POST \'https://"+ rip+"/write?db="+rdb+"\' -u "+ ruser+":"+ rpassw+" --data-binary \' "
     for value in data:
         http_post += "\n" + tablename +",location=" + unit + " "
         http_post += dataname + "=" + str(value) + " " + str(int(timestamp*10e8))
