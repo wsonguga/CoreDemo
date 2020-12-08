@@ -18,7 +18,7 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
 
-def calculateVitals(signal, fs, cutoff,nlags,order):
+def predict(signal, fs, cutoff,nlags,order):
     # add algorithm details
-    return random.randint(60, 90),random.randint(10, 20), random.randint(120, 150),random.randint(90, 120)
+    return np.random.randint(60, 90, 1),np.random.randint(10, 20, 1), np.random.randint(120, 150, 1), np.random.randint(90, 120, 1)
 

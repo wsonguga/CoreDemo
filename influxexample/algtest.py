@@ -38,46 +38,49 @@ ruser = user
 rpassw = passw
 rdb = "algtest"
 
-# define functions here
-def utcToLocalTime(time2, formatt, from_zone, to_zone):
-    utc = datetime.strptime(time2, formatt)
-    utc = utc.replace(tzinfo=from_zone)
-    central = utc.astimezone(to_zone)
-    timeDetected = central.strftime("%m-%d %I:%M %p")
-    return timeDetected
+debug = True; #str2bool(config.get('general', 'debug'))
+verbose = True
 
-def localTimeToEpoch(time):
-    local_tz = pytz.timezone("America/New_York")
+def localTimeToEpoch(time, zone):
+    local_tz = pytz.timezone(zone)
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
     local_dt = local_tz.localize(localTime, is_dst=None)
     # utc_dt = local_dt.astimezone(pytz.utc)
     # print("epoch time with tzinfo:", str(utc_dt))
     # utc_dt = utc_dt.replace(tzinfo=None)
-    # print("local time:",local_dt)
     # print("UTC time:", utc_dt)
-    # epoch = int( (utc_dt - datetime(1970,1,1)).total_seconds())
-    # epoch = int(utc_dt.timestamp()*1000)
-    # epoch = int(local_dt.timestamp()*1000)
-
-    # remove the int
+    # Note: utc_dt.timestamp() equals to local_dt.timestamp()
     epoch = local_dt.timestamp()
-    # print(local_dt.timestamp())
-    # print(type(local_dt.timestamp()))
+    print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    return epoch 
 
-    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
-    return epoch # utc_dt
+# dataname - the dataname such as temperature, heartrate, etc
+# timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
+# fs - the sampling interval of readings in data
+# unitt - the unit location name tag
+def writeInflux(tablename, dataname, data, timestamp, fs, unit):
+    print("epoch time:", timestamp) 
+    http_post  = "curl -s -POST \'https://"+ ip+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
+    for value in data:
+        http_post += "\n" + tablename +",location=" + unit + " "
+        http_post += dataname + "=" + str(value) + " " + str(int(timestamp*10e8))
+        timestamp +=  1/fs
+    http_post += "\'  &"
+    if (verbose):   
+        print(http_post)
+    subprocess.call(http_post, shell=True)
 
-def saveResults(unit, serie, field, value, time):
-   time = time[0:19]
+# def saveResults(unit, serie, field, value, time):
+#    time = time[0:19]
 
-   utc_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-   epoch_time = utc_time.timestamp() #int((utc_time - datetime(1970, 1, 1)).total_seconds())
+#    utc_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
+#    epoch_time = utc_time.timestamp() #int((utc_time - datetime(1970, 1, 1)).total_seconds())
 
-   http_post2 = "curl -s -POST --insecure \'https://"+rip+":"+rport+"/write?db="+rdb+"\' -u "+ruser+":"+rpassw+" --data-binary \' "
-   http_post2 += "\n"+serie+",location="+unit+" "+field+"="+value+" "+str(epoch_time)+"000000000"
-   http_post2 += "\'  &"
+#    http_post2 = "curl -s -POST --insecure \'https://"+rip+":"+rport+"/write?db="+rdb+"\' -u "+ruser+":"+rpassw+" --data-binary \' "
+#    http_post2 += "\n"+serie+",location="+unit+" "+field+"="+value+" "+str(epoch_time)+"000000000"
+#    http_post2 += "\'  &"
 
-   subprocess.call(http_post2, shell=True)
+#    subprocess.call(http_post2, shell=True)
 
 def str2bool(v):
   return v.lower() in ("true", "1", "https", "t")
@@ -98,7 +101,6 @@ def main():
 #  to_zone = pytz.timezone("America/New_York")
 
  # Parameters from Config file
- debug = False; #str2bool(config.get('general', 'debug'))
  db           = 'shake' # config.get('general', 'dbraw')
  buffersize   = 60 # config.get('general', 'buffersize')
  samplingrate = 100 # int(config.get('general', 'samplingrate'))
@@ -134,7 +136,7 @@ def main():
  if(len(sys.argv) > 2):
     # current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
 #    current = datetime.strptime("2018-06-29T08:15:27.243860Z", "%Y-%m-%dT%H:%M:%S.%fZ")
-    current = localTimeToEpoch(sys.argv[2])
+    current = localTimeToEpoch(sys.argv[2], "America/New_York")
 
  else:
     current = datetime.utcnow().timestamp()
@@ -144,7 +146,7 @@ def main():
      endSet = True
 #     end = datetime.strptime('2018-06-29T08:15:27.243860', '%Y-%m-%dT%H:%M:%S.%f')
     #  end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
-     end = localTimeToEpoch(sys.argv[3])
+     end = localTimeToEpoch(sys.argv[3], "America/New_York")
 
  else:
      endSet = False
@@ -201,7 +203,7 @@ def main():
  # set max retries for DB query
  numTry = 0 
  MAXTRY = 100 # max try of 100 seconds
- debug = True
+ result = []
  # Infinite Loop
  while True:
     # Cheking is the process need to sleep
@@ -222,12 +224,15 @@ def main():
         #print("The sleep monitoring result from node program is at https://sensorweb.us:3000/d/VmjKXrXWz/bed-dashboard?orgId=1&refresh=5s&var-mac=" + str(unit))
         quit()
     
-    stampIni = (datetime.utcfromtimestamp(epoch1).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
-    stampEnd = (datetime.utcfromtimestamp(epoch2).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+    # stampIni = (datetime.utcfromtimestamp(epoch1).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+    # stampEnd = (datetime.utcfromtimestamp(epoch2).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
     #t0 = time.perf_counter()
-    if(debug): print("stampIni time: " + stampIni)
-    if(debug): print("stampEnd time: " + stampEnd)
-    query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= \''+stampIni+'\' and time <= \''+stampEnd+'\'   '
+    # if(debug): print("stampIni time: " + stampIni)
+    # if(debug): print("stampEnd time: " + stampEnd)
+    # query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= \''+stampIni+'\' and time <= \''+stampEnd+'\'   '
+    print('start:', epoch1, 'end:', epoch2)
+    query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= '+ str(int(epoch1*10e8))+' and time <= '+str(int(epoch2*10e8))
+    print(query)
 
     try:
         result = client.query(query)
@@ -268,12 +273,20 @@ def main():
 
     #  the blood pressure estimation algorithm
     if(debug): print("Calculating vital signs")
-    hr,rr,bphigh,bplow = alg.calculateVitals(data, fs=100, cutoff=4,nlags=200,order=1)
-    saveResults(unit, 'hrate', 'hr' ,str(hr), nowtime)
-    saveResults(unit, 'rrate', 'rr' ,str(rr), nowtime)
-    saveResults(unit, 'bpressure', 'bph' ,str(bphigh), nowtime)
-    saveResults(unit, 'bpressure', 'bpl' ,str(bplow), nowtime)
-    # if(debug): print("bph:", bphigh, " bpl:", bplow)
+    hr,rr,bph,bpl = alg.predict(data, fs=100, cutoff=4,nlags=200,order=1)
+    if(debug): print('hr:', hr, ' rr:', rr, ' bph:', bph, ' bpl:', bpl)
+    # saveResults(unit, 'hrate', 'hr' ,str(hr), nowtime)
+    # saveResults(unit, 'rrate', 'rr' ,str(rr), nowtime)
+    # saveResults(unit, 'bpressure', 'bph' ,str(bphigh), nowtime)
+    # saveResults(unit, 'bpressure', 'bpl' ,str(bplow), nowtime)
+
+    fs = 1
+    print('nowtime:', nowtime)
+    timestamp = localTimeToEpoch(nowtime[:-1], "UTC")
+    writeInflux('hrate', 'hr', hr, timestamp, fs, unit)
+    writeInflux('rrate', 'rr', rr, timestamp, fs, unit)
+    writeInflux('bpressure', 'bph', bph, timestamp, fs, unit)
+    writeInflux('bpressure', 'bpl', bpl, timestamp, fs, unit)
     # end of adding
 
 if __name__== '__main__':

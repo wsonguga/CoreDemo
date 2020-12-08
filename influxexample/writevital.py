@@ -21,7 +21,7 @@ def localTimeToEpoch(time, zone):
     local_dt = local_tz.localize(localTime, is_dst=None)
     # utc_dt = local_dt.astimezone(pytz.utc)
     epoch = local_dt.timestamp()
-    print("epoch time:", str(epoch)) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
     return epoch 
 
 # dataname - the dataname such as temperature, heartrate, etc
@@ -63,6 +63,7 @@ webbrowser.open(url, new=2)
 
 timestamp = start
 while timestamp < end:
+    print("epoch time:", timestamp) 
     fs = 1 # 1Hz
     n = 60 # write n seconds data at one time. for example, fs =1 and n = 60 means 60 seconds data and 1 per second to write at once 
     S = np.random.randint(100, 150, n)
