@@ -26,49 +26,21 @@ import subprocess
 from dateutil.parser import parse
 #from config import Config
 import webbrowser
+from util import local_time_epoch
+from util import write_influx
+
 
 ip = "sensorweb.us"
 port = "8086"
 user = "test"
 passw = "sensorweb"
 db = "shake"
-rip = ip
-rport = port
-ruser = user
-rpassw = passw
-rdb = "algtest"
 
+rip = ip
 debug = True; #str2bool(config.get('general', 'debug'))
 verbose = True
 
-def localTimeToEpoch(time, zone):
-    local_tz = pytz.timezone(zone)
-    localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
-    local_dt = local_tz.localize(localTime, is_dst=None)
-    # utc_dt = local_dt.astimezone(pytz.utc)
-    # print("epoch time with tzinfo:", str(utc_dt))
-    # utc_dt = utc_dt.replace(tzinfo=None)
-    # print("UTC time:", utc_dt)
-    # Note: utc_dt.timestamp() equals to local_dt.timestamp()
-    epoch = local_dt.timestamp()
-    print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
-    return epoch 
-
-# dataname - the dataname such as temperature, heartrate, etc
-# timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
-# fs - the sampling interval of readings in data
-# unitt - the unit location name tag
-def writeInflux(tablename, dataname, data, timestamp, fs, unit):
-    print("epoch time:", timestamp) 
-    http_post  = "curl -s -POST \'https://"+ rip+"/write?db="+rdb+"\' -u "+ ruser+":"+ rpassw+" --data-binary \' "
-    for value in data:
-        http_post += "\n" + tablename +",location=" + unit + " "
-        http_post += dataname + "=" + str(value) + " " + str(int(timestamp*10e8))
-        timestamp +=  1/fs
-    http_post += "\'  &"
-    if (verbose):   
-        print(http_post)
-    subprocess.call(http_post, shell=True)
+dest = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
 
 # def saveResults(unit, serie, field, value, time):
 #    time = time[0:19]
@@ -123,7 +95,6 @@ def main():
 
  if(len(sys.argv) > 4):
    ip = sys.argv[4] # influxdb IP address
-   rip = ip
  
 
  if(len(sys.argv) > 5):
@@ -136,7 +107,7 @@ def main():
  if(len(sys.argv) > 2):
     # current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
 #    current = datetime.strptime("2018-06-29T08:15:27.243860Z", "%Y-%m-%dT%H:%M:%S.%fZ")
-    current = localTimeToEpoch(sys.argv[2], "America/New_York")
+    current = local_time_epoch(sys.argv[2], "America/New_York")
 
  else:
     current = datetime.utcnow().timestamp()
@@ -146,7 +117,7 @@ def main():
      endSet = True
 #     end = datetime.strptime('2018-06-29T08:15:27.243860', '%Y-%m-%dT%H:%M:%S.%f')
     #  end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
-     end = localTimeToEpoch(sys.argv[3], "America/New_York")
+     end = local_time_epoch(sys.argv[3], "America/New_York")
 
  else:
      endSet = False
@@ -282,11 +253,11 @@ def main():
 
     fs = 1
     print('nowtime:', nowtime)
-    timestamp = localTimeToEpoch(nowtime[:-1], "UTC")
-    writeInflux('hrate', 'hr', hr, timestamp, fs, unit)
-    writeInflux('rrate', 'rr', rr, timestamp, fs, unit)
-    writeInflux('bpressure', 'bph', bph, timestamp, fs, unit)
-    writeInflux('bpressure', 'bpl', bpl, timestamp, fs, unit)
+    timestamp = local_time_epoch(nowtime[:-1], "UTC")
+    write_influx(dest, unit, 'hrate', 'hr', hr, timestamp, fs)
+    write_influx(dest, unit, 'rrate', 'rr', rr, timestamp, fs)
+    write_influx(dest, unit, 'bpressure', 'bph', bph, timestamp, fs)
+    write_influx(dest, unit, 'bpressure', 'bpl', bpl, timestamp, fs)
     # end of adding
 
 if __name__== '__main__':
