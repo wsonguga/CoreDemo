@@ -11,7 +11,13 @@ from datetime import datetime
 from dateutil import tz
 import pytz
 
+from influxdb import InfluxDBClient
+import operator
 
+
+# This function converts the time string to epoch time xxx.x (second).
+# Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
+# If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
 def local_time_epoch(time, zone):
     local_tz = pytz.timezone(zone)
     localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
@@ -21,18 +27,40 @@ def local_time_epoch(time, zone):
     # print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
     return epoch 
 
-# influx - the InfluxDB info including ip, db, user, pass
+# This function write an array of data to influxdb. It assumes the sample interval is 1/fs.
+# influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
 # dataname - the dataname such as temperature, heartrate, etc
 # timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
 # fs - the sampling interval of readings in data
-# unitt - the unit location name tag
-def write_influx(influx, unit, table_name, data_name, data, timestamp, fs):
+# unit - the unit location name tag
+def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs):
     # print("epoch time:", timestamp) 
     http_post  = "curl -s -POST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
     for value in data:
         http_post += "\n" + table_name +",location=" + unit + " "
-        http_post += data_name + "=" + str(value) + " " + str(int(timestamp*10e8))
-        timestamp +=  1/fs
+        http_post += data_name + "=" + str(value) + " " + str(int(start_timestamp*10e8))
+        start_timestamp +=  1/fs
     http_post += "\'  &"
     #     print(http_post)
     subprocess.call(http_post, shell=True)
+
+# This function read an array of data from influxdb.
+# influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
+# dataname - the dataname such as temperature, heartrate, etc
+# start_timestamp, end_timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
+# unit - the unit location name tag
+def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timestamp):
+    client = InfluxDBClient(influx['ip'], '8086', influx['user'], influx['passw'], influx['db'],  ssl=True)
+    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE ("location" = \''+unit+'\') and time >= '+ str(int(start_timestamp*10e8))+' and time <= '+str(int(end_timestamp*10e8))
+    # query = 'SELECT last("H") FROM "labelled" WHERE ("location" = \''+unit+'\')'
+
+    print(query)
+    result = client.query(query)
+    print(result)
+
+    points = list(result.get_points())
+    values =  map(operator.itemgetter('last'), points)
+    times  =  map(operator.itemgetter('time'),  points)
+    data = np.array(list(values))
+    print(data, times)
+    return data, times
