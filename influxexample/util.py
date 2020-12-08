@@ -50,8 +50,8 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
 # start_timestamp, end_timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
 # unit - the unit location name tag
 def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timestamp):
-    client = InfluxDBClient(influx['ip'], '8086', influx['user'], influx['passw'], influx['db'],  ssl=True)
-    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE ("location" = \''+unit+'\') and time >= '+ str(int(start_timestamp*10e8))+' and time <= '+str(int(end_timestamp*10e8))
+    client = InfluxDBClient(influx['ip'].split('//')[1], '8086', influx['user'], influx['passw'], influx['db'],  ssl=True)
+    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE "location" = "'+unit+'" AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
     # query = 'SELECT last("H") FROM "labelled" WHERE ("location" = \''+unit+'\')'
 
     print(query)
