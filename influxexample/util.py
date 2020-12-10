@@ -35,14 +35,22 @@ def local_time_epoch(time, zone):
 # unit - the unit location name tag
 def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs):
     # print("epoch time:", timestamp) 
-    http_post  = "curl -s -POST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
+    max_size = 100
+    count = 0
+    prefix_post  = "curl -s -POST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
+    http_post = prefix_post
     for value in data:
+        count += 1
         http_post += "\n" + table_name +",location=" + unit + " "
         http_post += data_name + "=" + str(value) + " " + str(int(start_timestamp*10e8))
         start_timestamp +=  1/fs
-    http_post += "\'  &"
-    #     print(http_post)
-    subprocess.call(http_post, shell=True)
+        if(count >= max_size):
+            http_post += "\'  &"
+            # print(http_post)
+            print("Write to influx: ", table_name, data_name)
+            subprocess.call(http_post, shell=True)
+            count = 0
+            http_post = prefix_post
 
 # This function read an array of data from influxdb.
 # influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
@@ -54,13 +62,13 @@ def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timest
     query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE "location" = \''+unit+'\' AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
     # query = 'SELECT last("H") FROM "labelled" WHERE ("location" = \''+unit+'\')'
 
-    print(query)
+    # print(query)
     result = client.query(query)
-    print(result)
+    # print(result)
 
     points = list(result.get_points())
     values =  map(operator.itemgetter(data_name), points)
     times  =  map(operator.itemgetter('time'),  points)
     data = np.array(list(values))
-    print(data, times)
+    # print(data, times)
     return data, times
