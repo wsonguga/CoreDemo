@@ -37,6 +37,7 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
     # print("epoch time:", timestamp) 
     max_size = 100
     count = 0
+    total = len(data)
     prefix_post  = "curl -s -POST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
     http_post = prefix_post
     for value in data:
@@ -47,10 +48,17 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
         if(count >= max_size):
             http_post += "\'  &"
             # print(http_post)
-            print("Write to influx: ", table_name, data_name)
+            print("Write to influx: ", table_name, data_name, count)
             subprocess.call(http_post, shell=True)
+            total = total - count
             count = 0
             http_post = prefix_post
+    if total != 0:
+        http_post += "\'  &"
+        # print(http_post)
+        count = total
+        print("Write to influx: ", table_name, data_name, count)
+        subprocess.call(http_post, shell=True)
 
 # This function read an array of data from influxdb.
 # influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}

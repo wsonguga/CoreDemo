@@ -36,8 +36,8 @@ dest = {'ip': ip, 'db': db, 'user':user, 'passw':passw}
 timestamp = start
 
 # for example, fs =1 and n = 60 means 60 data point and the data interval is 1 second 
-fs = 1 # 1Hz
-n = 600 # generate and write n data at one time. 
+fs = 1 # 1 Hz
+n = 635 # n is the data length 
 
 S = np.random.randint(110, 120, n)
 D = np.random.randint(70, 80, n)
