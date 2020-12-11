@@ -53,10 +53,9 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
             total = total - count
             count = 0
             http_post = prefix_post
-    if total != 0:
+    if count != 0:
         http_post += "\'  &"
         # print(http_post)
-        count = total
         print("Write to influx: ", table_name, data_name, count)
         subprocess.call(http_post, shell=True)
 
