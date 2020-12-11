@@ -60,7 +60,7 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
         subprocess.call(http_post, shell=True)
 
 # This function read an array of data from influxdb.
-# influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
+# influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'testdb', 'user':'test', 'passw':'sensorweb'}
 # dataname - the dataname such as temperature, heartrate, etc
 # start_timestamp, end_timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
 # unit - the unit location name tag
