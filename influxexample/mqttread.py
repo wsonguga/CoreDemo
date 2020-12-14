@@ -2,21 +2,30 @@
 
 import paho.mqtt.client as mqtt
 import time
- 
+from util import write_influx
+from datetime import datetime
+
+
+dest = {'ip':'https://sensorweb.us', 'db':'testdb', 'user':'test', 'passw':'sensorweb'}
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))  
     client.subscribe("shellies/shellyem3-D8BFC01A80A4/emeter/0/power")  
- 
+    # client.subscribe("test")   
  
 def on_message(client, userdata, msg):
-    print(msg.topic+" " + ":" + str(msg.payload))  
+    print(msg.topic+" " + ":" + str(msg.payload))
+    print(msg.payload)
+
+    start_timestamp = datetime.now().timestamp()
+    fs = 1
+    write_influx(dest, "shelly.ht.000000", "shellysensor", "HT", [str(msg.payload)], start_timestamp, fs)
  
- 
-client_id = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))   
-client_id
+client_id = "dots"# time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))   
 client = mqtt.Client(client_id)    
 client.username_pw_set("sili", "sensorweb") 
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect("test.mosquitto.org", 1883, 60)   #
+# client.connect("sensorweb.us", 1883, 60)   #
 client.loop_forever()
