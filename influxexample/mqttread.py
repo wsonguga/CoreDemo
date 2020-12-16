@@ -14,18 +14,18 @@ def on_connect(client, userdata, flags, rc):
     # client.subscribe("test")   
  
 def on_message(client, userdata, msg):
-    print(msg.topic+" " + ":" + str(msg.payload))
+    print(msg.topic, float(msg.payload))
     print(msg.payload)
 
     start_timestamp = datetime.now().timestamp()
     fs = 1
-    write_influx(dest, "shelly.ht.000000", "shellysensor", "HT", [str(msg.payload)], start_timestamp, fs)
+    write_influx(dest, "shelly.ht.000000", "shellysensor", "HT", [float(msg.payload)], start_timestamp, fs)
  
 client_id = "dots"# time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))   
 client = mqtt.Client(client_id)    
 client.username_pw_set("sili", "sensorweb") 
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect("test.mosquitto.org", 1883, 60)   #
+client.connect("sensorweb.us", 1883, 60)   #
 # client.connect("sensorweb.us", 1883, 60)   #
 client.loop_forever()
