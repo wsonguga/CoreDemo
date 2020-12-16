@@ -31,7 +31,7 @@ else:
 
 dest = {'ip': ip, 'db': db, 'user':user, 'passw':passw}
 
-# start = datetime.now().timestamp() # you may choose to use the correct time as the timestamp
+# start = datetime.now().timestamp() # uncomment this line to use the current time as the start timestamp of the plot
 
 timestamp = start
 
