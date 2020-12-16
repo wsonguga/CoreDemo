@@ -16,28 +16,37 @@ from util import write_influx
 
 verbose = False
 
-if len(sys.argv) >= 7:
+if len(sys.argv) >= 6:
     ip = sys.argv[1]
     db = sys.argv[2]
     user = sys.argv[3]
     passw = sys.argv[4]
     unit = sys.argv[5]
-    start = local_time_epoch(sys.argv[6], "America/New_York")
+#    start = local_time_epoch(sys.argv[6], "America/New_York")
 #    end = local_time_epoch(sys.argv[7], "America/New_York")
 else:
-    print("Example: " + sys.argv[0] + " https://sensorweb.us testdb test sensorweb aa:bb:cc:dd:ee:ff 2020-08-13T02:03:00.200")
+    print("Example: " + sys.argv[0] + " https://sensorweb.us testdb test sensorweb aa:bb:cc:dd:ee:ff") # 2020-08-13T02:03:00.200")
     print("Change aa:bb:cc:dd:ee:ff to your fi:rs:tl:as:tn:am to avoid overwrite each other")
     sys.exit()
 
 dest = {'ip': ip, 'db': db, 'user':user, 'passw':passw}
 
-# start = datetime.now().timestamp() # uncomment this line to use the current time as the start timestamp of the plot
+start = datetime.now().timestamp() # uncomment this line to use the current time as the start timestamp of the plot
 
 timestamp = start
 
 # for example, fs =1 and n = 60 means 60 data point and the data interval is 1 second 
-fs = 1 # 1 Hz
-n = 635 # n is the data length 
+fs = 1000 # 1 Hz
+n = 60000 # n is the data length 
+
+url = ip + ":3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=1s&var-unit=" + unit
+url = url + "&from=" + str(int(start*1000)) #+ "000" 
+#url = url + "&to=" + str(int(end*1000)) #+ "000"
+
+print("Click here to see the results in Grafana (user/password:viewer/guest):\n" + url)
+#  input("Press any key to continue")
+webbrowser.open(url, new=2)
+
 
 S = np.random.randint(110, 120, n)
 D = np.random.randint(70, 80, n)
@@ -66,10 +75,4 @@ end = timestamp + n/fs # add n seconds
 
 print("start:", start, (datetime.fromtimestamp(start).strftime('%Y-%m-%dT%H:%M:%S.%f')), "end:", end, (datetime.fromtimestamp(end).strftime('%Y-%m-%dT%H:%M:%S.%f')))
 
-url = ip + ":3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=5s&var-unit=" + unit
-url = url + "&from=" + str(int(start*1000)) #+ "000" 
-url = url + "&to=" + str(int(end*1000)) #+ "000"
-
 print("Click here to see the results in Grafana (user/password:viewer/guest):\n" + url)
-#  input("Press any key to continue")
-webbrowser.open(url, new=2)
