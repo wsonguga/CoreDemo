@@ -1,0 +1,40 @@
+Question
+
+How do I create a .JAR file?
+
+Answer 1
+
+For example, if you want to create TCPClient.jar executable file.
+First, you need to create a file "manifest" with the following content:
+
+Main-Class: TCPClient
+
+Please input an "Enter" at the end of this line, then you could run:
+
+jar cvmf manifest TCPClient.jar TCPClient.class
+
+to generate jar file and run it with:
+
+java -jar TCPClient.jar
+
+Answer 2
+
+http://www.javacoffeebreak.com/faq/faq0028.html
+http://www.skylit.com/javamethods/faqs/createjar.html
+
+ava Archive (JAR) files allow developers to package many classes into a single file. JAR files also use compression, so this can make applets and applications smaller.
+
+Creating a .JAR file is easy. Simple go to the directory your classes are stored in and type :-
+
+jar -cf myfile.jar *.class
+If your application or applet uses packages, then you'll need to do things a little differently. 
+Suppose your classes were in the package mycode.games.CoolGame
+- you'd change to the directory above mycode and type the following :- (Remember to use / on UNIX systems)
+
+jar -cf myfile.jar .\mycode\games\CoolGame\*.class
+Now, if you have an existing JAR file, and want to extract it, you'd type the following
+
+jar -xf myfile.jar
+Working with JAR files isn't that difficult, especially if you've used the unix 'tar' command before. 
+If you're planning on packaging an applet for Internet Explorer, or an application for Microsoft's jview, 
+you might also want to consider .CAB files.
