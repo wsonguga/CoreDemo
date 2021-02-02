@@ -36,8 +36,8 @@ start = datetime.now().timestamp() # uncomment this line to use the current time
 timestamp = start
 
 # for example, fs =1 and n = 60 means 60 data point and the data interval is 1 second 
-fs = 1000 # 1 Hz
-n = 60000 # n is the data length 
+fs = 10 # 1 Hz
+n = 600 # n is the data length 
 
 url = ip + ":3000/d/Vv7164WMz/vital-signs?orgId=1&refresh=1s&var-unit=" + unit
 url = url + "&from=" + str(int(start*1000)) #+ "000" 
