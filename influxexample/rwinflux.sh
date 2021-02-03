@@ -14,4 +14,8 @@ curl -G "https://sensorweb.us:8086/query?pretty=true&db=testdb" -u test:sensorwe
 
 curl -G "https://sensorweb.us:8086/query?pretty=true&db=testdb" -u test:sensorweb --data-urlencode "q=SELECT temperature FROM weather WHERE location = 'UGA' AND time=1586651070000000000"
 
+# this usage will send data to https server without verifying server certificate
+curl -s --insecure POST 'https://sensorweb.local:8086/write?db=algtest' -u test:sensorweb --data-binary 'weather,location=UGA temperature=108 1586651070000000000'
 
+# this usage will send data to https server without verifying server certificate
+curl -G --insecure "https://sensorweb.local:8086/query?pretty=true&db=algtest" -u test:sensorweb --data-urlencode "q=SELECT temperature FROM weather WHERE location = 'UGA' AND time=1586651070000000000"
