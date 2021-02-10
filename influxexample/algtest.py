@@ -99,7 +99,7 @@ def main():
 
  if(len(sys.argv) > 5):
     ssl = str2bool(sys.argv[5]) #https or http
-    httpStr = "http://"
+    httpStr = sys.argv[5]+"://"
  else:
     ssl = True
     httpStr = "https://"
