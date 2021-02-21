@@ -7,6 +7,7 @@ from datetime import datetime
 
 
 dest = {'ip':'https://sensorweb.us', 'db':'testdb', 'user':'test', 'passw':'sensorweb'}
+# Visit URL: https://sensorweb.us:3000/d/KeEHZfJMz/shelly-sensors?orgId=1&from=now-5m&to=now (guest/sensorweb_guest)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))  
