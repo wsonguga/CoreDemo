@@ -15,7 +15,7 @@ from influxdb import InfluxDBClient
 import operator
 
 
-# This function converts the time string to epoch time xxx.x (second).
+# This function converts the time string to epoch time xxx.xxx (second.ms).
 # Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
 # If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
 def local_time_epoch(time, zone):
@@ -25,7 +25,22 @@ def local_time_epoch(time, zone):
     # utc_dt = local_dt.astimezone(pytz.utc)
     epoch = local_dt.timestamp()
     # print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    # print(type(epoch)) # float
     return epoch 
+
+# This function converts the epoch time xxx.xxx (second.ms) to time string.
+# Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
+# If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
+def epoch_time_local(epoch, zone):
+    local_tz = pytz.timezone(zone)
+    time = datetime.fromtimestamp(epoch).astimezone(local_tz).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return time 
+
+# This function converts the grafana URL time to epoch time. For exmaple, given below URL
+# https://sensorweb.us:3000/grafana/d/OSjxFKvGk/caretaker-vital-signs?orgId=1&var-mac=b8:27:eb:6c:6e:22&from=1612293741993&to=1612294445244
+# 1612293741993 means epoch time 1612293741.993; 1612294445244 means epoch time 1612294445.244
+def grafana_time_epoch(time):
+    return time/1000
 
 # This function write an array of data to influxdb. It assumes the sample interval is 1/fs.
 # influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
