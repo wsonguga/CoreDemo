@@ -89,8 +89,12 @@ def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timest
     # print(result)
 
     points = list(result.get_points())
-    values =  map(operator.itemgetter(data_name), points)
-    times  =  map(operator.itemgetter('time'),  points)
-    data = np.array(list(values))
+    values =  list(map(operator.itemgetter(data_name), points))
+    times  =  list(map(operator.itemgetter('time'),  points))
+    # print(times)
+    # times = [local_time_epoch(item[:-1], "UTC") for item in times] # convert string time to epoch time
+    # print(times)
+
+    data = values #np.array(values)
     # print(data, times)
     return data, times

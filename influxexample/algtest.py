@@ -26,9 +26,7 @@ import subprocess
 from dateutil.parser import parse
 #from config import Config
 import webbrowser
-from util import local_time_epoch
-from util import write_influx
-
+from util import * 
 
 ip = "sensorweb.us"
 port = "8086"
@@ -40,19 +38,8 @@ rip = ip
 debug = True; #str2bool(config.get('general', 'debug'))
 verbose = True
 
+src = {'ip': 'https://sensorweb.us', 'db': 'shake', 'user':'test', 'passw':'sensorweb'}
 dest = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
-
-# def saveResults(unit, serie, field, value, time):
-#    time = time[0:19]
-
-#    utc_time = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
-#    epoch_time = utc_time.timestamp() #int((utc_time - datetime(1970, 1, 1)).total_seconds())
-
-#    http_post2 = "curl -s -POST --insecure \'https://"+rip+":"+rport+"/write?db="+rdb+"\' -u "+ruser+":"+rpassw+" --data-binary \' "
-#    http_post2 += "\n"+serie+",location="+unit+" "+field+"="+value+" "+str(epoch_time)+"000000000"
-#    http_post2 += "\'  &"
-
-#    subprocess.call(http_post2, shell=True)
 
 def str2bool(v):
   return v.lower() in ("true", "1", "https", "t")
@@ -68,10 +55,6 @@ def main():
     print("Example: %s b8:27:eb:97:f5:ac 2020-08-13T02:03:00.200 2020-08-13T02:05:00.030 sensorweb.us https # specify influxdb IP and http/https" %(progname))
     quit()
 
-#  formatt = '%Y-%m-%dT%H:%M:%S.%fZ'
-#  from_zone = tz.tzutc()
-#  to_zone = pytz.timezone("America/New_York")
-
  # Parameters from Config file
  db           = 'shake' # config.get('general', 'dbraw')
  buffersize   = 60 # config.get('general', 'buffersize')
@@ -84,9 +67,6 @@ def main():
  buffer      = []
  buffertime  = []
 
-
-#t1 = time.perf_counter()
-#print("t1-t0= " +str(t1-t0))
  alg.logpath = ""
 # Getting the user input parameters
  global ip, rip
@@ -105,8 +85,6 @@ def main():
     httpStr = "https://"
 
  if(len(sys.argv) > 2):
-    # current = datetime.strptime(sys.argv[2], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
-#    current = datetime.strptime("2018-06-29T08:15:27.243860Z", "%Y-%m-%dT%H:%M:%S.%fZ")
     current = local_time_epoch(sys.argv[2], "America/New_York")
 
  else:
@@ -115,8 +93,6 @@ def main():
 
  if(len(sys.argv) > 3):
      endSet = True
-#     end = datetime.strptime('2018-06-29T08:15:27.243860', '%Y-%m-%dT%H:%M:%S.%f')
-    #  end = datetime.strptime(sys.argv[3], "%Y-%m-%dT%H:%M:%S.%fZ") + (datetime.utcnow() - datetime.now())
      end = local_time_epoch(sys.argv[3], "America/New_York")
 
  else:
@@ -128,14 +104,6 @@ def main():
 # Determining the starting point of the buffer using epoch time
  epoch2 = current # int( (current - datetime(1970,1,1)).total_seconds())
  startEpoch = epoch2
-
- #current = datetime.utcnow()
-#  print("len(sys.argv)", len(sys.argv))
-#  print("### Current time:", current, " ### \n")
-#  print("### End time:", end, " ### \n")
-#  print("Click here to see the results in Grafana:\n\n" +
-#               httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
-#                str(unit)+ "&orgId=1&from=" + str(startEpoch) + "000" + "&to=" + str(endEpoch) + "000")
 
  print("len(sys.argv)", len(sys.argv))
  print("### Current time:", current, " ### \n")
@@ -189,24 +157,12 @@ def main():
     if (endSet and epoch2 > endEpoch):
         if(debug): print("**** Ended as ", epoch2, " > ", end, " ***")
         print("Click here to see the results in Grafana:\n\n" + url)
-        # print("Click here to see the results in Grafana:\n\n" +
-        #       httpStr + rip + ":3000/d/o2RBARGMz/bed-dashboard-algtest?var-mac=" +
-        #        str(unit)+ "&orgId=1&from=" + str(int(startEpoch*1000)) + "&to=" + str(int(endEpoch*1000)) )
-        #print("The sleep monitoring result from node program is at https://sensorweb.us:3000/d/VmjKXrXWz/bed-dashboard?orgId=1&refresh=5s&var-mac=" + str(unit))
         quit()
     
-    # stampIni = (datetime.utcfromtimestamp(epoch1).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
-    # stampEnd = (datetime.utcfromtimestamp(epoch2).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
-    #t0 = time.perf_counter()
-    # if(debug): print("stampIni time: " + stampIni)
-    # if(debug): print("stampEnd time: " + stampEnd)
-    # query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= \''+stampIni+'\' and time <= \''+stampEnd+'\'   '
     print('start:', epoch1, 'end:', epoch2)
-    query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= '+ str(int(epoch1*10e8))+' and time <= '+str(int(epoch2*10e8))
-    print(query)
-
+    
     try:
-        result = client.query(query)
+        values, times = read_influx(src, unit, 'Z', 'value', epoch1, epoch2)
     except Exception as e:
         print("main(), no data in the query time period:")
         print("Error", e)
@@ -215,10 +171,22 @@ def main():
         if (numTry > MAXTRY):            
             quit()
 
-    # print(result)
-    points = list(result.get_points())
-    values =  list(map(operator.itemgetter('value'), points))
-    times  =  list(map(operator.itemgetter('time'),  points))
+    # query = 'SELECT "value" FROM Z WHERE ("location" = \''+unit+'\')  and time >= '+ str(int(epoch1*10e8))+' and time <= '+str(int(epoch2*10e8))
+    # print(query)
+
+    # try:
+    #     result = client.query(query)
+    # except Exception as e:
+    #     print("main(), no data in the query time period:")
+    #     print("Error", e)
+    #     time.sleep(1)
+    #     numTry += 1
+    #     if (numTry > MAXTRY):            
+    #         quit()
+    # # print(result)
+    # points = list(result.get_points())
+    # values =  list(map(operator.itemgetter('value'), points))
+    # times  =  list(map(operator.itemgetter('time'),  points))
 
     # the buffer management modules
     buffertime = buffertime + times
@@ -227,9 +195,9 @@ def main():
     if(debug): 
         print("buffLen: ", buffLen) 
         if(buffLen>0):
-            print("Buffer Time:    " + str(buffertime[0]) + "  -   " + str(buffertime[buffLen-1]))
-
-    # Cutting the buffer when overflow
+            print("Buffer Time:    " + buffertime[0]+ "  -   " + buffertime[buffLen-1])
+            # print("Buffer Time:    " + epoch_time_local(buffertime[0], "America/New_York") + "  -   " + epoch_time_local(buffertime[buffLen-1], "America/New_York"))
+    #  Cutting the buffer when overflow
     if(buffLen > maxbuffersize):
        difSize = buffLen - maxbuffersize
        del buffer[0:difSize]
@@ -246,10 +214,6 @@ def main():
     if(debug): print("Calculating vital signs")
     hr,rr,bph,bpl = alg.predict(data, fs=100, cutoff=4,nlags=200,order=1)
     if(debug): print('hr:', hr, ' rr:', rr, ' bph:', bph, ' bpl:', bpl)
-    # saveResults(unit, 'hrate', 'hr' ,str(hr), nowtime)
-    # saveResults(unit, 'rrate', 'rr' ,str(rr), nowtime)
-    # saveResults(unit, 'bpressure', 'bph' ,str(bphigh), nowtime)
-    # saveResults(unit, 'bpressure', 'bpl' ,str(bplow), nowtime)
 
     fs = 1
     print('nowtime:', nowtime)
