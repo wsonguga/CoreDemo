@@ -10,6 +10,7 @@ import math
 import datetime
 import sys
 import urllib3
+import pytz
 # from datetime import datetime
 urllib3.disable_warnings()
 
@@ -50,23 +51,21 @@ def get_arguments():
     parser.add_argument('endTime',
                         type=str,
                         help='end time. format: Year-Mon-DayTHour:Min:Sec')
+    parser.add_argument('timeZone',
+                        type=str,
+                        help='local time zone. default value: UTC')
     
     return parser.parse_args()
 
 
-def datetime_convert(startDate, endDate):
-    # leftT, rightT = startDate.split('T')
-    # year, mon, day = leftT.split('-')
-    # hour, min, sec = rightT.split(':')
-    # sDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
+def datetime_convert(startDate, endDate, tzone):
+    time_zone = pytz.timezone(tzone)
     sDate = datetime.datetime.strptime(startDate, "%Y-%m-%dT%H:%M:%S.%f")
-    # print(sDate, fsDate)
-
-    # leftT, rightT = endDate.split('T')
-    # year, mon, day = leftT.split('-')
-    # hour, min, sec = rightT.split(':')
-    # eDate = datetime.datetime(int(year), int(mon), int(day), int(hour), int(min), int(sec))
     eDate = datetime.datetime.strptime(endDate, "%Y-%m-%dT%H:%M:%S.%f")
+
+    sDate = time_zone.localize(sDate, is_dst=None)
+    eDate = time_zone.localize(eDate, is_dst=None)
+    
     return sDate, eDate
 
 
@@ -134,7 +133,7 @@ def data_migration(startTime, endTime, args):
     
 
 def main():
-    sTime, eTime = datetime_convert(args.startTime, args.endTime)
+    sTime, eTime = datetime_convert(args.startTime, args.endTime, args.timeZone)
     leftWindow = sTime
 
     client_write_start_time = time.perf_counter()
@@ -165,8 +164,8 @@ if __name__ == "__main__":
     # arguments examination
     if len(sys.argv) <= 10:
         print("Usage: \n" + sys.argv[0] + " sname sIP sDB sUser sPass dIP dDB dUser dPass startTime(local) endTime(local)")
-        print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000 2020-08-07T19:22:35.000")
-        print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000 2020-08-07T19:22:35.000")
+        print("Example (copy all): \n" + sys.argv[0] + " ALL https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000 2020-08-07T19:22:35.000 UTC")
+        print("Example (copy series Z only): \n" + sys.argv[0] + " Z https://sensorweb.us shake test sensorweb https://sensorweb.us testdb test sensorweb 2020-08-07T19:22:31.000 2020-08-07T19:22:35.000 UTC")
         # print("\nOpen browser with user/password:guest/sensorweb_guest to see waveform at grafana:\n \
         #         https://grafana.sensorweb.us/d/L3IBhqdGz/migration-example?orgId=1&from=1596842552000&to=1596842555002")
         sys.exit()
