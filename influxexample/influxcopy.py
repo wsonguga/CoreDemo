@@ -138,7 +138,7 @@ def data_migration(startTime, endTime, args):
 def main():
     sTime, eTime = datetime_convert(args.startTime, args.endTime, args.timeZone)
     leftWindow = sTime
-    window_size = 3
+    window_size = 1
     client_write_start_time = time.perf_counter()
     while True:
         if (eTime - leftWindow).seconds > window_size * 60:
