@@ -86,6 +86,11 @@ def data_migration(startTime, endTime, args):
 
     result = sClient.query('show series')
     points = list(result.get_points())
+
+    # if no data in this window, skip to another loop.
+    if len(points) == 0:
+        return -1
+
     snames = []
 
     for i in range(len(points)):
@@ -145,10 +150,13 @@ def main():
         else:
             rightWindow = eTime
 
-        data_migration(leftWindow, rightWindow, args)
+        migrate_status = data_migration(leftWindow, rightWindow, args)
         if (eTime - leftWindow).seconds < 5 * 60:
             break
+        
         leftWindow = rightWindow
+        if migrate_status == -1:
+            continue
     
     client_write_end_time = time.perf_counter()
 
