@@ -52,8 +52,10 @@ def get_arguments():
                         type=str,
                         help='end time. format: Year-Mon-DayTHour:Min:Sec')
     parser.add_argument('timeZone',
+                        nargs="?",
+                        const="UTC",
                         type=str,
-                        help='local time zone. default value: UTC')
+                        help='local time zone. If not specified, the default value would be UTC')
     
     return parser.parse_args()
 
