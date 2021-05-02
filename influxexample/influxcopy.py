@@ -109,6 +109,8 @@ def data_migration(startTime, endTime, args):
             result = sClient.query(copyQuery)
         except Exception as e:
             return -1
+        if result.error != None:
+            return -1
         values = list(result.get_points())
         if len(values)==0:
             return -1
