@@ -11,6 +11,7 @@ import datetime
 import sys
 import urllib3
 import pytz
+import gc
 # from datetime import datetime
 urllib3.disable_warnings()
 
@@ -78,6 +79,7 @@ def data_migration(startTime, endTime, args):
     else:
         isAll = True
 
+
     start_timestamp = startTime.timestamp()*1000
     start_str = str(int((start_timestamp)*1000000))
 
@@ -98,12 +100,18 @@ def data_migration(startTime, endTime, args):
         
         if sname not in snames:
             snames.append(sname)
+
     
     for sname in snames:
         copyQuery = 'SELECT * FROM ' + sname + ' WHERE time > ' + start_str + ' and time < ' + end_str
         
-        result = sClient.query(copyQuery)
+        try:
+            result = sClient.query(copyQuery)
+        except Exception as e:
+            return -1
         values = list(result.get_points())
+        if len(values)==0:
+            return -1
 
         print(copyQuery, "Data Length:" , len(values))
 
@@ -130,15 +138,20 @@ def data_migration(startTime, endTime, args):
                         "time": point_time
                     }
                 )
+        if not data:
+            return
+        print('write data length,',len(data))
         dClient.write_points(data, database = args.dDB, time_precision = 'ms', batch_size = write_batch_size, protocol = 'json')
         print(point_time)
+        del data
+        gc.collect()
     return None
     
 
 def main():
     sTime, eTime = datetime_convert(args.startTime, args.endTime, args.timeZone)
     leftWindow = sTime
-    window_size = 1
+    window_size = 0.1
     client_write_start_time = time.perf_counter()
     while True:
         if (eTime - leftWindow).seconds > window_size * 60:
@@ -180,7 +193,7 @@ if __name__ == "__main__":
         
     args = get_arguments()
     # The ideal batch size for InfluxDB is 5,000-10,000 points.
-    write_batch_size = 1000
+    write_batch_size = 10000
 
     if 'https' in args.sURL:
         isSSL = True
