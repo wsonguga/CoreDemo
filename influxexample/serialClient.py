@@ -6,7 +6,7 @@ import sys, os
 #sys.path.insert(0, os.path.abspath('..'))
 import subprocess
 # import random
-import numpy as np
+# import numpy as np
 import datetime
 #!pip3 install pyserial
 import serial
@@ -15,7 +15,7 @@ import serial.tools.list_ports
 
 def parse(data, fs):
    length = len(data)
-   result = np.random.randint(10, 200, size=fs) # this line shall be modified based on your actual serial data
+   result = [10, 20, 30, 40, 50]*int(fs/5) #np.random.randint(10, 200, size=fs) # this line shall be modified based on your actual serial data
    return result
 
 # This function write an array of data to influxdb. It assumes the sample interval is 1/fs.
@@ -83,7 +83,7 @@ if __name__ == '__main__':
          if has_serial:
             receive = ser.read(ser.inWaiting()) 
          else:
-            receive = np.random.randint(10, 200, size=fs)  #       
+            receive = [10, 20, 30, 40, 50]*int(fs/5) # np.random.randint(10, 200, size=fs)  #       
      #    print(time.time(), "-- receive --", receive)
 
          count = len(receive)
