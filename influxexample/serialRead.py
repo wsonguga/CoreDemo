@@ -11,8 +11,27 @@ import datetime
 import serial
 import serial.tools.list_ports
 
-from util import local_time_epoch
-from util import write_influx
+
+#urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+def sendData(timestamp, data, channel, fs):
+   ##### Global veriables #########
+   unit = "be:lt:00.00:00:00"
+   url = "https://sensorweb.us:8086"
+   db = "algtest"
+   user = "test"
+   passw = "sensorweb"
+   verbose = False
+
+   http_post  = "curl -s -POST \'"+ url+"/write?db="+db+"\' -u "+ user+":"+ passw+" --data-binary \' "
+   for value in data:
+      http_post += "\n" + "beltsensor" +",location=" + unit + " "
+      http_post += channel + "=" + str(value) + " " + str(int(timestamp*10e8))
+      timestamp +=  1/fs # ??sampling rate is 1000Hz, not 100Hz as pi shake
+   http_post += "\'  &"
+   if (verbose):   
+      print(http_post)
+   subprocess.call(http_post, shell=True)
 
 # def read_next(fs):
 #     data1 = np.random.randint(10, 20, size=fs)
@@ -54,14 +73,22 @@ def parse(data):
    return detail_heart_rate_list, detail_snore_rate_list, detail_respiration_rate_list
 
 if __name__ == '__main__':
+   #  if len(sys.argv) <= 4:
+   #      print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb")
+   #      print('open browser with user/password:guest/sensorweb_guest to \
+   #          see waveform at grafana: https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&refresh=5s')
+   #      sys.exit()
+   # ports = list(serial.tools.list_ports.comports())
+   # port = None
+   # for p in ports:
+   #    print(p)
+   #    port = p.device
 
    port = "/dev/ttyUSB0"
    print("Read:", port)
    ser = serial.Serial(port, baudrate=115200, timeout=5)
    print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana: https://www.sensorweb.us:3000/d/pfkrgwTGk/beltsensor?orgId=1&from=now-1m&to=now&refresh=3s')
    fs = 200
-
-   dest = {'ip':'https://sensorweb.us', 'db':'testdb', 'user':'test', 'passw':'sensorweb'}
 
 #   subprocess.call("/opt/belt/beltWrite.py", shell=True)
    while(True):
@@ -75,14 +102,15 @@ if __name__ == '__main__':
          # data1, data2, data3 = read_next(fs)
          count = len(receive)
          each = float(count)/8
-         start_timestamp = datetime.datetime.now().timestamp() - (each/fs)
+         timestamp = datetime.datetime.now().timestamp() - (each/fs)
          detail_heart_rate_list, detail_snore_rate_list, detail_respiration_rate_list = parse(receive)
-         write_influx(dest, "unit.name", "beltsensor", "HR", detail_heart_rate_list, start_timestamp, fs)
-         write_influx(dest, "unit.name", "beltsensor", "RR", detail_respiration_rate_list, start_timestamp, fs)
-         write_influx(dest, "unit.name", "beltsensor", "SR", detail_snore_rate_list, start_timestamp, fs)
-
-         print(start_timestamp, " count:" + str(count) + " each:" + str(each) + " verify each:" + str(len(detail_heart_rate_list)))
-      # else: # some serial ports require a write operation to start sending data out, then uncomment below
-      #    subprocess.call("/opt/belt/beltWrite.py", shell=True)
+         # sendData(timestamp, detail_heart_rate_list, "HR", fs)
+         sendData(timestamp, detail_snore_rate_list, "RR", fs)
+         # sendData(timestamp, detail_respiration_rate_list, "SR", fs)
+         print(timestamp, " count:" + str(count) + " each:" + str(each) + " verify each:" + str(len(detail_heart_rate_list)))
+      else:
+         subprocess.call("/opt/belt/beltWrite.py", shell=True)
 
       time.sleep(1)
+
+#    start(sys.argv[1], sys.argv[2])
