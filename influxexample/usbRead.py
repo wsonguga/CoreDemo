@@ -109,7 +109,7 @@ if __name__ == '__main__':
          # sendData(timestamp, detail_respiration_rate_list, "SR", fs)
          print(timestamp, " count:" + str(count) + " each:" + str(each) + " verify each:" + str(len(detail_heart_rate_list)))
       else:
-         subprocess.call("/opt/belt/beltWrite.py", shell=True)
+         subprocess.call("./usbWrite.py", shell=True)
 
       time.sleep(1)
 
