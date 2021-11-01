@@ -15,6 +15,7 @@ import serial.tools.list_ports
 
 def parse(data, fs):
    length = len(data)
+   print(" ".join(hex(n) for n in data))  
    result = data # this line shall be modified based on your actual serial data
    return result
 
