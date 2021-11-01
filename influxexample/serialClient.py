@@ -15,7 +15,7 @@ import serial.tools.list_ports
 
 def parse(data, fs):
    length = len(data)
-   result = [10, 20, 30, 40, 50]*int(fs/5) #np.random.randint(10, 200, size=fs) # this line shall be modified based on your actual serial data
+   result = data # this line shall be modified based on your actual serial data
    return result
 
 # This function write an array of data to influxdb. It assumes the sample interval is 1/fs.
