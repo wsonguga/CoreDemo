@@ -11,7 +11,18 @@ import datetime
 #!pip3 install pyserial
 import serial
 import serial.tools.list_ports
+import netifaces
 
+def mac_address():
+   macEth = "unit.name"
+   data = netifaces.interfaces()
+   for i in data:
+      if i == 'eth0': #'en0': # 'eth0':
+         interface = netifaces.ifaddresses(i)
+         info = interface[netifaces.AF_LINK]
+         if info:
+            macEth = interface[netifaces.AF_LINK][0]["addr"]
+   return macEth
 
 def parse(data, fs):
    length = len(data)
@@ -69,8 +80,10 @@ if __name__ == '__main__':
       has_serial = True
    print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana: \n\thttps://www.sensorweb.us:3000/d/VgfUaF3Gz/bdotv2-plot?orgId=1&from=now-1m&to=now&refresh=5s')
    fs = 100
+   macEth = mac_address()
+   print("My ethernet MAC is: ", macEth)
 
-   dest = {'ip':'https://sensorweb.us', 'db':'testdb', 'user':'test', 'passw':'sensorweb'}
+   dest = {'ip':'https://sensorweb.us', 'db':'shake', 'user':'test', 'passw':'sensorweb'}
 
    # some serial ports require a write operation to start sending data out, then uncomment below and replace with a serial write program
 #   subprocess.call("/opt/belt/beltWrite.py", shell=True)
@@ -91,7 +104,7 @@ if __name__ == '__main__':
          each = float(count)/8
          start_timestamp = datetime.datetime.now().timestamp() - (each/fs)
          data = parse(receive, fs)
-         write_influx(dest, "unit.name", "bdot", "Z", data, start_timestamp, fs)
+         write_influx(dest, macEth, "Z", "value", data, start_timestamp, fs)
 
          print(start_timestamp, " count:" + str(count) + " each:" + str(each) + " verify each:" + str(len(data)))
       # some serial ports require a write operation to start sending data out, then uncomment below and replace with a serial write program
