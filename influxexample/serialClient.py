@@ -78,10 +78,11 @@ if __name__ == '__main__':
    if port != "none":
       ser = serial.Serial(port, baudrate=115200, timeout=5)
       has_serial = True
-   print('open browser with user/password:guest/sensorweb_guest to see waveform at grafana: \n\thttps://www.sensorweb.us:3000/d/VgfUaF3Gz/bdotv2-plot?orgId=1&from=now-1m&to=now&refresh=5s')
    fs = 100
    macEth = mac_address()
    print("My ethernet MAC is: ", macEth)
+   print(f'open browser with user/password:guest/sensorweb_guest to see waveform at grafana: \n\thttps://www.sensorweb.us:3000/d/VgfUaF3Gz/bdotv2-plot?orgId=1&var-mac1={macEth}&from=now-1m&to=now&refresh=5s')
+
 
    dest = {'ip':'https://sensorweb.us', 'db':'shake', 'user':'test', 'passw':'sensorweb'}
 
