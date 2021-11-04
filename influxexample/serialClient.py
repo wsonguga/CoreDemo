@@ -24,20 +24,25 @@ def mac_address():
             macEth = interface[netifaces.AF_LINK][0]["addr"]
    return macEth
 
-def parse(data, fs):
+def parse(data):
    length = len(data)
    print(" ".join(hex(n) for n in data))  
-   result = data # this line shall be modified based on your actual serial data
+
+   # this line below shall be modified based on your actual data structure
+   # each element in result shalll be one sensor reading
+   result = data 
+   # size = len(result)
    return result
 
 # This function write an array of data to influxdb. It assumes the sample interval is 1/fs.
 # influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
 # dataname - the dataname such as temperature, heartrate, etc
 # timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
-# fs - the sampling interval of readings in data
+# fs - the sampling frequency of readings in data
 # unit - the unit location name tag
 def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs):
     # print("epoch time:", timestamp) 
+    timestamp = start_timestamp
     max_size = 100
     count = 0
     total = len(data)
@@ -46,8 +51,8 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
     for value in data:
         count += 1
         http_post += "\n" + table_name +",location=" + unit + " "
-        http_post += data_name + "=" + str(value) + " " + str(int(start_timestamp*10e8))
-        start_timestamp +=  1/fs
+        http_post += data_name + "=" + str(value) + " " + str(int(timestamp*10e8))
+        timestamp +=  1/fs
         if(count >= max_size):
             http_post += "\'  &"
             # print(http_post)
@@ -73,13 +78,15 @@ if __name__ == '__main__':
       exit()
 
    print("Read:", port)
-   has_serial = False
    ser = 0
    if port != "none":
       ser = serial.Serial(port, baudrate=115200, timeout=5)
       has_serial = True
+      macEth = mac_address()
+   else:
+      has_serial = False
+      macEth = 'unit.name'
    fs = 100
-   macEth = mac_address()
    print("My ethernet MAC is: ", macEth)
    print(f'open browser with user/password:guest/sensorweb_guest to see waveform at grafana: \n\thttps://www.sensorweb.us:3000/d/VgfUaF3Gz/bdotv2-plot?orgId=1&var-mac1={macEth}&from=now-1m&to=now&refresh=5s')
 
@@ -88,7 +95,9 @@ if __name__ == '__main__':
 
    # some serial ports require a write operation to start sending data out, then uncomment below and replace with a serial write program
 #   subprocess.call("/opt/belt/beltWrite.py", shell=True)
+   start_timestamp = datetime.datetime.now().timestamp()
    while(True):
+      time.sleep(1)
       if has_serial:
          count = ser.inWaiting()
       else:
@@ -96,20 +105,20 @@ if __name__ == '__main__':
       print('inWaiting:', count)
       if count > 0:
          if has_serial:
-            receive = ser.read(ser.inWaiting()) 
+            receive = ser.read(ser.inWaiting())
          else:
-            receive = [10, 20, 30, 40, 50]*int(fs/5) # np.random.randint(10, 200, size=fs)  #       
-     #    print(time.time(), "-- receive --", receive)
+            receive = [10, 20, 30, 40, 50]*int(fs/5) # np.random.randint(10, 200, size=fs)  #  
+         end_timestamp = datetime.datetime.now().timestamp()      
+         # print(f'serial ({len(receive)}): {receive}')
 
-         count = len(receive)
-         each = float(count)/8
-         start_timestamp = datetime.datetime.now().timestamp() - (each/fs)
-         data = parse(receive, fs)
-         write_influx(dest, macEth, "Z", "value", data, start_timestamp, fs)
+         # start_timestamp = datetime.datetime.now().timestamp() - (each/fs)
+         data = parse(receive)
+         # notice that fs may be non-integer considering serial port uncertain delays
+         fd = (len(data))/(end_timestamp - start_timestamp) 
+         write_influx(dest, macEth, "Z", "value", data, start_timestamp, fd)
 
-         print(start_timestamp, " count:" + str(count) + " each:" + str(each) + " verify each:" + str(len(data)))
+         print(f'start: {start_timestamp}, end: {end_timestamp}, size:{len(data)}, fd:{fd}')
       # some serial ports require a write operation to start sending data out, then uncomment below and replace with a serial write program
       # else: 
       #    subprocess.call("/opt/belt/beltWrite.py", shell=True)
-
-      time.sleep(1)
+      start_timestamp = end_timestamp
