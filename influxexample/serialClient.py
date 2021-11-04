@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
          # start_timestamp = datetime.datetime.now().timestamp() - (each/fs)
          data = parse(receive)
-         # notice that fs may be non-integer considering serial port uncertain delays
+         ### !!! notice that fd is not fs and may be non-integer considering serial port uncertain delays
          fd = (len(data))/(end_timestamp - start_timestamp) 
          write_influx(dest, macEth, "Z", "value", data, start_timestamp, fd)
 
