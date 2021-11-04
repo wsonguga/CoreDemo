@@ -46,10 +46,11 @@ def grafana_time_epoch(time):
 # influx - the InfluxDB info including ip, db, user, pass. Example influx = {'ip': 'https://sensorweb.us', 'db': 'algtest', 'user':'test', 'passw':'sensorweb'}
 # dataname - the dataname such as temperature, heartrate, etc
 # timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
-# fs - the sampling interval of readings in data
+# fs - the sampling frequency of readings in data
 # unit - the unit location name tag
 def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs):
     # print("epoch time:", timestamp) 
+    timestamp = start_timestamp
     max_size = 100
     count = 0
     total = len(data)
@@ -58,8 +59,8 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
     for value in data:
         count += 1
         http_post += "\n" + table_name +",location=" + unit + " "
-        http_post += data_name + "=" + str(value) + " " + str(int(start_timestamp*10e8))
-        start_timestamp +=  1/fs
+        http_post += data_name + "=" + str(value) + " " + str(int(timestamp*10e8))
+        timestamp +=  1/fs
         if(count >= max_size):
             http_post += "\'  &"
             # print(http_post)
