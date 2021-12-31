@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#!sudo apt-get install python3-pip
 import socket as s
 import time
 #import urllib3
@@ -11,6 +12,7 @@ import datetime
 #!pip3 install pyserial
 import serial
 import serial.tools.list_ports
+#!pip3 install netifaces
 import netifaces
 
 def mac_address():
