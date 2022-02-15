@@ -19,7 +19,7 @@ def mac_address():
    macEth = "unit.name"
    data = netifaces.interfaces()
    for i in data:
-      if i == 'eth0': #'en0': # 'eth0':
+      if i == 'wlan0': #'en0': # 'eth0':
          interface = netifaces.ifaddresses(i)
          info = interface[netifaces.AF_LINK]
          if info:
@@ -87,7 +87,8 @@ if __name__ == '__main__':
       macEth = mac_address()
    else:
       has_serial = False
-      macEth = 'unit.name'
+      macEth = mac_address()
+#       macEth = 'unit.name'
    fs = 100
    print("My ethernet MAC is: ", macEth)
    print(f'open browser with user/password:guest/sensorweb_guest to see waveform at grafana: \n\thttps://www.sensorweb.us:3000/d/VgfUaF3Gz/bdotv2-plot?orgId=1&var-mac1={macEth}&from=now-1m&to=now&refresh=5s')
