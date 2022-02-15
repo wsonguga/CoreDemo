@@ -121,7 +121,11 @@ if __name__ == '__main__':
          write_influx(dest, macEth, "Z", "value", data, start_timestamp, fd)
 
          print(f'start: {start_timestamp}, end: {end_timestamp}, size:{len(data)}, fd:{fd}')
+         start_timestamp = end_timestamp
+      else:
+         start_timestamp = datetime.datetime.now().timestamp()
+
       # some serial ports require a write operation to start sending data out, then uncomment below and replace with a serial write program
       # else: 
       #    subprocess.call("/opt/belt/beltWrite.py", shell=True)
-      start_timestamp = end_timestamp
+ 
