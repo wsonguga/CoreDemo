@@ -7,7 +7,7 @@ import sys, os
 #sys.path.insert(0, os.path.abspath('..'))
 import subprocess
 # import random
-import numpy as np
+# import numpy as np
 import datetime
 #!pip3 install pyserial
 import serial
@@ -110,7 +110,7 @@ if __name__ == '__main__':
          if has_serial:
             receive = ser.read(ser.inWaiting())
          else:
-            receive = (1000*np.sin(np.linspace(0, 2*np.pi, fs))).astype(int) # [10, 20, 30, 40, 50]*int(fs/5) # np.random.randint(10, 200, size=fs)  #  
+            receive = [10, 20, 30, 40, 50]*int(fs/5) # np.random.randint(10, 200, size=fs)  #  (1000*np.sin(np.linspace(0, 2*np.pi, fs))).astype(int) #
          end_timestamp = datetime.datetime.now().timestamp()      
          # print(f'serial ({len(receive)}): {receive}')
 
