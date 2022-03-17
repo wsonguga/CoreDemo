@@ -119,7 +119,8 @@ def main():
     url = url + "&to=" + str(int(endEpoch*1000)) #+ "000"
  else:
     url = url + "&to=now"
- url = url + "&orgId=1&refresh=3s"
+ name = 'vitalsigns'
+ url = url + f"&var-name={name}&orgId=1&refresh=3s"
 
 
  print("Click here to see the results in Grafana:\n\n" + url)
@@ -218,10 +219,10 @@ def main():
     fs = 1
     print('nowtime:', nowtime)
     timestamp = local_time_epoch(nowtime[:-1], "UTC")
-    write_influx(dest, unit, 'hrate', 'hr', hr, timestamp, fs)
-    write_influx(dest, unit, 'rrate', 'rr', rr, timestamp, fs)
-    write_influx(dest, unit, 'bpressure', 'bph', bph, timestamp, fs)
-    write_influx(dest, unit, 'bpressure', 'bpl', bpl, timestamp, fs)
+    write_influx(dest, unit, name, 'heartrate', hr, timestamp, fs)
+    write_influx(dest, unit, name, 'respiratoryrate', rr, timestamp, fs)
+    write_influx(dest, unit, name, 'systolic', bph, timestamp, fs)
+    write_influx(dest, unit, name, 'diastolic', bpl, timestamp, fs)
     # end of adding
 
 if __name__== '__main__':
