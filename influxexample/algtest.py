@@ -26,7 +26,7 @@ import subprocess
 from dateutil.parser import parse
 #from config import Config
 import webbrowser
-from util import * 
+from utils import * 
 
 ip = "sensorweb.us"
 port = "8086"
