@@ -80,9 +80,9 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
 # dataname - the dataname such as temperature, heartrate, etc
 # start_timestamp, end_timestamp - the epoch time (in second) of the first element in the data array, such as datetime.now().timestamp()
 # unit - the unit location name tag
-def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timestamp):
+def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timestamp, condition="location"):
     client = InfluxDBClient(influx['ip'].split('//')[1], '8086', influx['user'], influx['passw'], influx['db'],  ssl=True)
-    query = 'SELECT "' + data_name + '" FROM "' + table_name + '" WHERE "location" = \''+unit+'\' AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
+    query = 'SELECT "' + data_name + '" FROM "' + table_name + f'" WHERE "{condition}" = \''+unit+'\' AND time >= '+ str(int(start_timestamp*10e8))+' AND time <= '+str(int(end_timestamp*10e8))
     # query = 'SELECT last("H") FROM "labelled" WHERE ("location" = \''+unit+'\')'
 
     # print(query)
