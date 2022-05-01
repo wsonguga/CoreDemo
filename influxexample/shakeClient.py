@@ -2,8 +2,8 @@
 import socket as s
 import subprocess
 
-with open('/opt/settings/sys/ip.txt', 'r') as file:
-    host = file.read().strip()
+# with open('/opt/settings/sys/ip.txt', 'r') as file:
+#     host = file.read().strip()
 
 unit = "airpad"
 
@@ -12,6 +12,7 @@ db = "testdb"
 user = "test"
 passw = "sensorweb"
 
+host = "127.0.0.1"
 port = 8888                             # Port to bind to
 sock = s.socket(s.AF_INET, s.SOCK_DGRAM | s.SO_REUSEADDR)
 sock.bind((host, port))
