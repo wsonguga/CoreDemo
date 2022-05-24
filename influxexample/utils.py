@@ -54,7 +54,7 @@ def write_influx(influx, unit, table_name, data_name, data, start_timestamp, fs)
     max_size = 100
     count = 0
     total = len(data)
-    prefix_post  = "curl -s -POST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
+    prefix_post  = "curl -i -k -XPOST \'"+ influx['ip']+":8086/write?db="+influx['db']+"\' -u "+ influx['user']+":"+ influx['passw']+" --data-binary \' "
     http_post = prefix_post
     for value in data:
         count += 1
