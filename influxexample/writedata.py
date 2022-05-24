@@ -17,7 +17,7 @@ timestamp = datetime.datetime.now().timestamp()
 
 while True:
     # IP:port, databaseName, user, password
-    http_post = "curl -i -XPOST \'%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    http_post = "curl -i -k -XPOST \'%s/write?db=%s\' -u %s:%s --data-binary \'" % (sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     for i in range(f_sampling):
         timestamp += 1 / f_sampling
         value = math.sin(2 * math.pi * f_wave * timestamp)
