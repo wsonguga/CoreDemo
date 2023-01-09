@@ -104,24 +104,13 @@ def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timest
     # print(data, times)
     return data, times
 
-def write_influx2(influx, unit, table_name, data_name, data, start_timestamp, fs):
+def write_influx2(influx, unit, table_name, tag_key, tag_value, data_name, data, start_timestamp, fs):
     """This function shows an example how to write a point into the influx 2.x database
-
-    Args:
-        influx (_type_): _description_
-        unit (_type_): _description_
-        table_name (_type_): _description_
-        data_name (_type_): _description_
-        data (_type_): _description_
-        start_timestamp (_type_): _description_
-        fs (_type_): _description_
     """
-    
-    bucket = "<my-bucket>"
-    org = "<my-org>"
-    token = "<my-token>"
-    # Store the URL of your InfluxDB instance
-    url="http://localhost:8086"
+    bucket = influx['db']
+    org = influx['org']
+    token = influx['token']
+    url = influx['ip']
 
     client = influxdb_client.InfluxDBClient(
         url=url,
@@ -131,27 +120,17 @@ def write_influx2(influx, unit, table_name, data_name, data, start_timestamp, fs
 
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    p = influxdb_client.Point("my_measurement").tag("location", "Prague").field("temperature", 25.3)
+    p = influxdb_client.Point(table_name).tag(tag_key, tag_value).field(data_name, data)
     write_api.write(bucket=bucket, org=org, record=p)
     return
 
-def read_influx2(influx, unit, table_name, data_name, start_timestamp, end_timestamp, condition="location"):
+def read_influx2(influx, unit, table_name, tag_key, tag_value, data_name, start_timestamp, end_timestamp, condition="location"):
     """This function shows an example how to read data points from influx 2.x database
-
-    Args:
-        influx (_type_): _description_
-        unit (_type_): _description_
-        table_name (_type_): _description_
-        data_name (_type_): _description_
-        start_timestamp (_type_): _description_
-        end_timestamp (_type_): _description_
-        condition (str, optional): _description_. Defaults to "location".
     """
-    bucket = "<my-bucket>"
-    org = "<my-org>"
-    token = "<my-token>"
-    # Store the URL of your InfluxDB instance
-    url="http://localhost:8086"
+    bucket = influx['db']
+    org = influx['org']
+    token = influx['token']
+    url = influx['ip']
 
     client = influxdb_client.InfluxDBClient(
         url=url,
@@ -160,16 +139,15 @@ def read_influx2(influx, unit, table_name, data_name, start_timestamp, end_times
     )
     
     query_api = client.query_api()
-    query = ‘ from(bucket:"my-bucket")\
+    query = ‘ from(bucket:bucket)\
     |> range(start: -10m)\
-    |> filter(fn:(r) => r._measurement == "my_measurement")\
-    |> filter(fn: (r) => r.location == "Prague")\
-    |> filter(fn:(r) => r._field == "temperature" )‘
+    |> filter(fn:(r) => r._measurement == table_name)\
+    |> filter(fn: (r) => r.tag_key == tag_value)\
+    |> filter(fn:(r) => r._field == data_name )‘
     result = query_api.query(org=org, query=query)
     results = []
     for table in result:
         for record in table.records:
             results.append((record.get_field(), record.get_value()))
-
     print(results)
-    return
+    return results
