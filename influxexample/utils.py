@@ -123,9 +123,9 @@ def read_influx2(influx, unit, table_name, data_name, start_timestamp, end_times
     query_api = client.query_api()
     query = f' from(bucket:{bucket})\
     |> range(start: {start}, stop: {end})\
-    |> filter(fn:(r) => r._measurement == {table_name})\
-    |> filter(fn: (r) => r[{condition}] == {unit})\
-    |> filter(fn:(r) => r._field == {data_name} )'
+    |> filter(fn:(r) => r._measurement == "{table_name}")\
+    |> filter(fn: (r) => r[{condition}] == "{unit}")\
+    |> filter(fn:(r) => r._field == "{data_name}" )'
     result = query_api.query(org=org, query=query)
     results = []
     for table in result:
