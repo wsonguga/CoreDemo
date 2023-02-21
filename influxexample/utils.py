@@ -15,7 +15,7 @@ import operator
 
 # python API client for influx 2.x
 import influxdb_client
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client.client.write_api import SYNCHRONOUS, ASYNCHRONOUS
 
 
 
@@ -104,33 +104,15 @@ def read_influx(influx, unit, table_name, data_name, start_timestamp, end_timest
     # print(data, times)
     return data, times
 
-def write_influx2(influx, unit, table_name, tag_key, tag_value, data_name, data, start_timestamp, fs):
-    """This function shows an example how to write a point into the influx 2.x database
-    """
-    bucket = influx['db']
-    org = influx['org']
-    token = influx['token']
-    url = influx['ip']
-
-    client = influxdb_client.InfluxDBClient(
-        url=url,
-        token=token,
-        org=org
-    )
-
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-
-    p = influxdb_client.Point(table_name).tag(tag_key, tag_value).field(data_name, data)
-    write_api.write(bucket=bucket, org=org, record=p)
-    return
-
-def read_influx2(influx, unit, table_name, tag_key, tag_value, data_name, start_timestamp, end_timestamp, condition="location"):
+def read_influx2(influx, unit, table_name, data_name, start_timestamp, end_timestamp, condition="location"):
     """This function shows an example how to read data points from influx 2.x database
     """
-    bucket = influx['db']
+    bucket = influx['bucket']
     org = influx['org']
     token = influx['token']
-    url = influx['ip']
+    url = influx['ip'] + ":8086"
+    start = str(int(start_timestamp*10e8))
+    end = str(int(end_timestamp*10e8))
 
     client = influxdb_client.InfluxDBClient(
         url=url,
@@ -139,15 +121,48 @@ def read_influx2(influx, unit, table_name, tag_key, tag_value, data_name, start_
     )
     
     query_api = client.query_api()
-    query = ‘ from(bucket:bucket)\
-    |> range(start: -10m)\
-    |> filter(fn:(r) => r._measurement == table_name)\
-    |> filter(fn: (r) => r.tag_key == tag_value)\
-    |> filter(fn:(r) => r._field == data_name )‘
+    query = f' from(bucket:{bucket})\
+    |> range(start: {start}, stop: {end})\
+    |> filter(fn:(r) => r._measurement == {table_name})\
+    |> filter(fn: (r) => r[{condition}] == {unit})\
+    |> filter(fn:(r) => r._field == {data_name} )'
     result = query_api.query(org=org, query=query)
     results = []
     for table in result:
         for record in table.records:
             results.append((record.get_field(), record.get_value()))
-    print(results)
+            
     return results
+
+def write_influx2(influx, unit, table_name, data_name, data, start_timestamp, fs):
+    """This function shows an example how to write a point into the influx 2.x database
+    """
+    # influx, unit, table_name, data_name, data, start_timestamp, fs
+    timestamp = start_timestamp
+    bucket = influx['bucket']
+    org = influx['org']
+    token = influx['token']
+    url = influx['ip'] + ":8086"
+    start = str(int(start_timestamp*10e8))
+
+
+    client = influxdb_client.InfluxDBClient(
+        url=url,
+        token=token,
+        org=org
+    )
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+
+    max_size = 100
+    total = len(data)
+    count = 0
+    
+    for value in data:
+        count += 1
+        if count >= max_size:
+            print("Write to influx: ", table_name, data_name, count)
+            p = influxdb_client.Point(table_name).tag("location", unit).field(data_name, value).time(start)
+            write_api.write(bucket=bucket, org=org, record=p)
+            total = total - count
+            count = 0
+        start += 1 / fs
