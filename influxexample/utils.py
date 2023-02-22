@@ -111,8 +111,8 @@ def read_influx2(influx, unit, table_name, data_name, start_timestamp, end_times
     org = influx['org']
     token = influx['token']
     url = influx['ip'] + ":8086"
-    start = str(int(start_timestamp*10e8))
-    end = str(int(end_timestamp*10e8))
+    start = str(datetime.fromtimestamp(start_timestamp).isoformat()) + 'Z'
+    end = str(datetime.fromtimestamp(end_timestamp).isoformat()) + 'Z'
 
     client = influxdb_client.InfluxDBClient(
         url=url,
