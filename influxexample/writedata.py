@@ -4,12 +4,16 @@ import math
 import datetime
 import subprocess
 import sys
+import webbrowser
 
+url = "https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&refresh=5s"
 if len(sys.argv) <= 4:
         print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb")
-        print('open browser with user/password:viewer/guest to \
-            see waveform at grafana: https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&refresh=5s')
+        print(f'open browser with user/password:viewer/guest to \
+            see waveform at grafana: {url}')
         sys.exit()
+
+webbrowser.open(url, new=2)
 
 f_sampling = 10
 f_wave = 1
