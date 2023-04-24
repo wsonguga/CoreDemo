@@ -30,6 +30,24 @@ times  =  map(operator.itemgetter('time'),  points)
 data = np.array(list(values))
 print("respiratory rate: " + str(data[0]))
 
+# get systolic
+query = 'SELECT last("systolic") FROM "vitalsigns" WHERE ("location" = \''+unit+'\')'
+result = client.query(query)
+points = list(result.get_points())
+values =  map(operator.itemgetter('last'), points)
+times  =  map(operator.itemgetter('time'),  points)
+data = np.array(list(values))
+print("systolic: " + str(data[0]))
+
+# get diastolic
+query = 'SELECT last("diastolic") FROM "vitalsigns" WHERE ("location" = \''+unit+'\')'
+result = client.query(query)
+points = list(result.get_points())
+values =  map(operator.itemgetter('last'), points)
+times  =  map(operator.itemgetter('time'),  points)
+data = np.array(list(values))
+print("diastolic: " + str(data[0]))
+
 # get in/out bed status
 query = 'SELECT last("bs") FROM "bedStatus" WHERE ("location" = \''+unit+'\')'
 result = client.query(query)
