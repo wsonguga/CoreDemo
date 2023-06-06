@@ -6,7 +6,7 @@ import subprocess
 import sys
 import webbrowser
 
-url = "https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&refresh=5s"
+url = "https://sensorweb.us:3000/d/Yvx-ULCWz/simsensor?orgId=1&var-mac=UGA&refresh=5s"
 if len(sys.argv) <= 4:
         print("Example: " + sys.argv[0] + " https://sensorweb.us:8086 testdb test sensorweb")
         print(f'open browser with user/password:viewer/guest to \
