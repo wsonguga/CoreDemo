@@ -24,13 +24,31 @@ from influxdb_client.client.write_api import SYNCHRONOUS, ASYNCHRONOUS
 # If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
 def local_time_epoch(time, zone):
     local_tz = pytz.timezone(zone)
-    localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
+    try:
+        localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
+    except:
+        localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S")
     local_dt = local_tz.localize(localTime, is_dst=None)
     # utc_dt = local_dt.astimezone(pytz.utc)
     epoch = local_dt.timestamp()
     # print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
     # print(type(epoch)) # float
-    return epoch 
+    return epoch
+
+def influx_query_time_epoch(time, zone):
+    local_tz = pytz.timezone(zone)
+    try:
+        localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%fZ")
+    except:
+        localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
+        
+    local_dt = local_tz.localize(localTime, is_dst=None)
+    # utc_dt = local_dt.astimezone(pytz.utc)
+    epoch = local_dt.timestamp()
+    # print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    # print(type(epoch)) # float
+    return epoch
+
 
 # This function converts the epoch time xxx.xxx (second.ms) to time string.
 # Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
