@@ -25,5 +25,5 @@ then
 else
 #    echo "$SERVICE stopped at $now, restart!" >> $SCRIPTPATH/$LOG
     cd $SCRIPTPATH
-    sudo $PYTHON $SERVICE
+    $PYTHON $SERVICE
 fi
